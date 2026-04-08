@@ -21,6 +21,8 @@ A pattern like `Bash(printenv)` blocks any Bash tool call where the command star
 
 ## Adding custom command blocks
 
+Use `/patronum-add` with the `Bash(...)` format:
+
 ```
 /patronum-add "Bash(cat /etc/shadow)" --reason "Password hashes"
 /patronum-add "Bash(aws sts)" --reason "AWS session tokens"

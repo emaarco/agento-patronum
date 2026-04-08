@@ -1,14 +1,18 @@
-# /patronum-remove
+# patronum-remove
 
 Remove a pattern from the protection list.
 
 ## Usage
+
+Inside Claude Code, run:
 
 ```
 /patronum-remove "<pattern>"
 ```
 
 ## Examples
+
+Remove a pattern by specifying its exact string:
 
 ```
 /patronum-remove "**/*.pem"

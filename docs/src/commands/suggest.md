@@ -1,8 +1,10 @@
-# /patronum-suggest
+# patronum-suggest
 
 Analyze your project and suggest protection patterns based on your tech stack.
 
 ## Usage
+
+Inside Claude Code, run:
 
 ```
 /patronum-suggest
@@ -20,6 +22,8 @@ Analyze your project and suggest protection patterns based on your tech stack.
 Unlike other commands, `/patronum-suggest` can be invoked automatically by Claude when it detects relevant context — for example, when you mention a new cloud provider or start working with a tech stack that has known sensitive files.
 
 ## Example
+
+A typical interaction when working with a new tech stack:
 
 ```
 User: "I'm starting work on a Terraform deployment for AWS"

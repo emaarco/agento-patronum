@@ -4,6 +4,8 @@ Every blocked tool call is logged to `~/.claude/patronum.log` in JSONL format (o
 
 ## Format
 
+Each blocked call is logged as a single JSON object:
+
 ```json
 {"ts":"2026-04-08T10:30:00Z","tool":"Read","target":"/Users/you/.ssh/id_rsa","pattern":"~/.ssh/*"}
 ```
@@ -16,6 +18,8 @@ Every blocked tool call is logged to `~/.claude/patronum.log` in JSONL format (o
 | `pattern` | The pattern that matched |
 
 ## Viewing logs
+
+Use standard Unix tools to inspect the log:
 
 ```bash
 # Last 10 blocked calls

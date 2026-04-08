@@ -1,8 +1,10 @@
-# /patronum-list
+# patronum-list
 
 Show all patterns currently protected by agento-patronum.
 
 ## Usage
+
+Inside Claude Code, run:
 
 ```
 /patronum-list

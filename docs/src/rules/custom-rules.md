@@ -12,6 +12,8 @@ Use `/patronum-add` inside Claude Code:
 
 ## Removing patterns
 
+Use `/patronum-remove` to delete a pattern:
+
 ```
 /patronum-remove "**/*.tfvars"
 ```
@@ -21,6 +23,8 @@ Removing a default pattern is permanent. It won't come back unless you re-add it
 :::
 
 ## Viewing your patterns
+
+Use `/patronum-list` to see everything currently protected:
 
 ```
 /patronum-list

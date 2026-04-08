@@ -1,14 +1,18 @@
-# /patronum-add
+# patronum-add
 
 Add a pattern to the protection list.
 
 ## Usage
+
+Inside Claude Code, run:
 
 ```
 /patronum-add "<pattern>" [--reason "reason"]
 ```
 
 ## Examples
+
+Common patterns you might want to protect:
 
 ```
 /patronum-add "~/.config/gcloud/credentials.db"

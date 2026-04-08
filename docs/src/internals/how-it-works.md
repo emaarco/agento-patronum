@@ -1,38 +1,28 @@
 # How It Works
 
+agento-patronum registers a `PreToolUse` hook via Claude Code's plugin system. This hook runs as a shell script **before every tool call** — intercepting `Read`, `Write`, `Edit`, `MultiEdit`, and `Bash` operations before they execute.
+
 ## Hook flow
 
-```
-Claude Code → Tool Call → PreToolUse Hook → patronum-hook.sh
-                                                  │
-                                    ┌─────────────┼─────────────┐
-                                    │             │             │
-                               Read/Write/    Bash tool    Other tools
-                               Edit/MultiEdit     │             │
-                                    │             │          exit 0
-                                    │             │         (allow)
-                                    ▼             ▼
-                              Extract         Wrap as
-                              file_path      Bash(command)
-                                    │             │
-                                    └──────┬──────┘
-                                           │
-                                           ▼
-                                  Check against patterns
-                                  in ~/.claude/patronum.json
-                                           │
-                                    ┌──────┴──────┐
-                                    │             │
-                                 Match         No match
-                                    │             │
-                                    ▼             ▼
-                              Log + exit 2     exit 0
-                              (block)         (allow)
-```
+The diagram below shows the complete interception pipeline — from Claude Code issuing a tool call to the final allow/block decision.
+
+<div style="margin-top: 1.5rem;">
+
+![Hook flow diagram: Claude Code calls a tool, the PreToolUse hook intercepts it, checks against patterns in patronum.json, and either blocks or allows the call.](/hook-flow.svg)
+
+</div>
+
+**Step by step:**
+
+1. **Claude Code** issues a tool call (e.g. `Read ~/.ssh/id_rsa` or `Bash printenv`)
+2. **The PreToolUse hook** (`patronum-hook.sh`) intercepts the call before it executes
+3. **Pattern matching** checks the target file path or command against all entries in `~/.claude/patronum.json`
+4. If a pattern matches: the call is **blocked** (exit code 2) and logged to `~/.claude/patronum.log`
+5. If no pattern matches: the call is **allowed** (exit code 0) and proceeds normally
 
 ## What the hook receives
 
-The hook reads JSON from stdin:
+The hook reads JSON from stdin. For file operations:
 
 ```json
 {

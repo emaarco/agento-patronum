@@ -13,6 +13,8 @@ agento-patronum uses glob patterns to match file paths. When Claude Code tries t
 
 ## Examples
 
+These examples show how glob patterns match against file paths:
+
 ```json
 {
   "pattern": "**/.env",

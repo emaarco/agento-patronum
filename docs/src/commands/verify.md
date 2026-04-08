@@ -1,8 +1,10 @@
-# /patronum-verify
+# patronum-verify
 
 Run a self-test to verify that hook enforcement is working correctly.
 
 ## Usage
+
+Inside Claude Code, run:
 
 ```
 /patronum-verify

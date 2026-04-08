@@ -4,6 +4,8 @@ The protection config is stored at `~/.claude/patronum.json`.
 
 ## Full schema
 
+The config file contains an array of protection entries and a version field:
+
 ```json
 {
   "entries": [

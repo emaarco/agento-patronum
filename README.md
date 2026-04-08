@@ -5,6 +5,9 @@
 
 **[Documentation](https://emaarco.github.io/agento-patronum/)** | **[Marketplace](https://github.com/emaarco/agento-patronum)**
 
+> [!NOTE]
+> agento-patronum is in early development (v0.1.0). Features, skill names, and default patterns may change between releases. Feedback and contributions are very welcome.
+
 ---
 
 ## What it protects you from
@@ -13,8 +16,8 @@ Claude Code is powerful. That power needs boundaries.
 When Claude can read your `.env`, your SSH keys, your AWS credentials — it will.
 Not maliciously. Just helpfully. agento-patronum draws the line.
 
-It enforces file protection via **PreToolUse hooks** — the only layer Claude Code can't silently bypass.
-Settings.json deny rules are [confirmed buggy](https://emaarco.github.io/agento-patronum/internals/why-hooks). Hooks are reliable.
+It uses **PreToolUse hooks** — an explicit enforcement layer you control and can verify.
+Built-in `settings.json` deny rules may or may not be reliable; [past reports suggest gaps](https://emaarco.github.io/agento-patronum/internals/why-hooks). Hooks are a transparent alternative.
 
 ## Install in two commands
 
@@ -85,21 +88,25 @@ No cloud, no binary, no Python. Pure bash + jq.
 
 ## Story behind the plugin
 
-Claude Code's `permissions.deny` rules in `settings.json` should prevent access to sensitive files.
-They don't — deny rules are frequently ignored due to confirmed bugs.
+Claude Code's `permissions.deny` rules in `settings.json` are intended to prevent access to sensitive files.
+Whether they always work reliably is unclear — past issues suggest they can be bypassed in certain situations.
 
-agento-patronum was built because the only reliable way to protect files is through PreToolUse hooks.
-The plugin makes this protection accessible via two install commands and manageable via slash commands.
+agento-patronum takes a different approach: PreToolUse hooks are explicit, transparent, and verifiable.
+It's one solution among others — but it's one you can inspect, extend, and trust.
+The plugin makes hook-based protection accessible in two install commands.
 
 Read more in the [documentation](https://emaarco.github.io/agento-patronum/internals/why-hooks).
 
 ## Contributing
 
-Contributions welcome! You can:
+agento-patronum welcomes all kinds of contributions — code, new default protection patterns, documentation improvements, bug reports, ideas, and feedback.
 
-- **Suggest default patterns**: Know a file that should be protected? [Open a pattern suggestion](https://github.com/emaarco/agento-patronum/issues/new?template=pattern_suggestion.yml)
-- **Report bugs**: [Open a bug report](https://github.com/emaarco/agento-patronum/issues/new?template=bug_report.yml)
-- **Improve docs**: Edit links on every documentation page
+- **Report a bug**: [Open a bug report](https://github.com/emaarco/agento-patronum/issues/new?template=bug.yml)
+- **Request a feature or pattern**: [Open a feature request](https://github.com/emaarco/agento-patronum/issues/new?template=feature.yml)
+- **Propose a refactor**: [Open a refactor issue](https://github.com/emaarco/agento-patronum/issues/new?template=refactor.yml)
+- **Improve the docs**: Every documentation page has an edit link
+- **Add a default pattern**: Fork the repo, edit `defaults/patronum.json`, and open a PR
+- **Write or improve a skill**: Skills live in `skills/*/SKILL.md` — plain Markdown, easy to edit
 
 ---
 

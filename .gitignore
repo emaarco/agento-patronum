@@ -1,0 +1,5 @@
+node_modules/
+docs/src/.vitepress/dist/
+docs/src/.vitepress/cache/
+.DS_Store
+.tmp/

@@ -1,0 +1,48 @@
+name: "\U0001F41B Bug Report"
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect — and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Installed plugin via /plugin install...
+        2. Added pattern via /patronum-add...
+        3. Claude still accessed the file...
+    validations:
+      required: true
+
+  - type: textarea
+    id: patronum-json
+    attributes:
+      label: Your patronum.json (sanitized)
+      description: Contents of ~/.claude/patronum.json — remove real paths if needed
+      render: json
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - macOS
+        - Linux
+        - Windows (WSL)
+        - Windows (Git Bash)
+    validations:
+      required: true
+
+  - type: input
+    id: claude-code-version
+    attributes:
+      label: Claude Code version
+      placeholder: e.g. 2.1.90

@@ -1,0 +1,29 @@
+name: "\u2728 Feature Request"
+description: Suggest a new protection pattern or feature
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's the problem?
+      description: What are you trying to protect that isn't covered yet?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: What pattern, command or feature would solve it?
+
+  - type: checkboxes
+    id: type
+    attributes:
+      label: Type
+      options:
+        - label: New default protection pattern
+        - label: New slash command
+        - label: Improvement to existing behavior
+        - label: Documentation
+        - label: Something else

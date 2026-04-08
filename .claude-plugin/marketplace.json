@@ -1,0 +1,13 @@
+{
+  "name": "emaarco",
+  "owner": {
+    "name": "emaarco"
+  },
+  "plugins": [
+    {
+      "name": "agento-patronum",
+      "source": ".",
+      "description": "Protects sensitive files, credentials, and commands from unintended AI access via PreToolUse hooks."
+    }
+  ]
+}

@@ -60,6 +60,7 @@ export default defineConfig({
         items: [
           { text: 'patronum.json Schema', link: '/reference/schema' },
           { text: 'Changelog', link: '/reference/changelog' },
+          { text: 'Contributing', link: '/reference/contributing' },
         ],
       },
     ],

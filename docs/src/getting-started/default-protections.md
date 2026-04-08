@@ -43,8 +43,6 @@ agento-patronum ships with a curated set of protection patterns covering common 
 | Pattern | Reason |
 |---------|--------|
 | `Bash(printenv)` | Exposes all environment variables including secrets |
-| `Bash(env)` | Exposes all environment variables including secrets |
-| `Bash(set)` | Exposes all shell variables including secrets |
 
 ## Need more?
 

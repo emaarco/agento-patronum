@@ -1,5 +1,7 @@
 # Custom Rules
 
+The default patterns cover the most common sensitive files. Add your own to match your stack — or remove defaults that don't fit your workflow.
+
 ## Adding patterns
 
 Use `/patronum-add` inside Claude Code:

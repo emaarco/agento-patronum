@@ -47,7 +47,7 @@ Run these inside Claude Code:
 That's it. Hook active. Credentials shielded.
 
 ::: tip Restart required
-Claude Code has no `PostInstall` lifecycle event. Instead, agento-patronum registers a `SessionStart` hook that runs setup on the first session start after installation. **Restart Claude Code once** after installing to activate protection.
+Claude Code doesn't have a `PostInstall` lifecycle event yet — that would be the natural solution here, and may be added in a future version. For now, agento-patronum uses a `SessionStart` hook that runs setup on the first session start after installation. **Restart Claude Code once** after installing to activate protection.
 :::
 
 ::: warning Install at user scope

@@ -17,8 +17,9 @@ if [ -z "${HOME:-}" ]; then
   exit 2
 fi
 
-PATRONUM_CONFIG="$HOME/.claude/patronum.json"
-PATRONUM_LOG="$HOME/.claude/patronum.log"
+# Resolve config path: project-level takes priority over user-level
+# shellcheck source=patronum-config-resolver.sh
+source "$(dirname "$0")/patronum-config-resolver.sh"
 
 # If no config exists, allow everything
 if [ ! -f "$PATRONUM_CONFIG" ]; then

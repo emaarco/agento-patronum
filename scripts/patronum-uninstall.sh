@@ -4,28 +4,30 @@
 
 set -euo pipefail
 
-CONFIG_FILE="$HOME/.claude/patronum.json"
-LOG_FILE="$HOME/.claude/patronum.log"
-
+PATRONUM_DIR="$HOME/.claude/patronum"
 REMOVED=0
 
-if [ -f "$CONFIG_FILE" ]; then
-  COUNT=$(jq '.entries | length' "$CONFIG_FILE" 2>/dev/null || echo "unknown")
-  rm "$CONFIG_FILE"
-  echo "agento-patronum: removed $CONFIG_FILE ($COUNT patterns)"
+if [ -d "$PATRONUM_DIR" ]; then
+  CONFIG_FILE="$PATRONUM_DIR/user.json"
+  COUNT="unknown"
+  if [ -f "$CONFIG_FILE" ]; then
+    COUNT=$(jq '.entries | length' "$CONFIG_FILE" 2>/dev/null || echo "unknown")
+  fi
+  rm -rf "$PATRONUM_DIR"
+  echo "agento-patronum: removed $PATRONUM_DIR ($COUNT patterns in user config)"
   REMOVED=$((REMOVED + 1))
 else
-  echo "agento-patronum: no config found at $CONFIG_FILE"
+  echo "agento-patronum: no config directory found at $PATRONUM_DIR"
 fi
 
-if [ -f "$LOG_FILE" ]; then
-  LINES=$(wc -l < "$LOG_FILE" | tr -d ' ')
-  rm "$LOG_FILE"
-  echo "agento-patronum: removed $LOG_FILE ($LINES log entries)"
-  REMOVED=$((REMOVED + 1))
-else
-  echo "agento-patronum: no log found at $LOG_FILE"
-fi
+# Remove legacy flat files if present (pre-migration)
+for LEGACY in "$HOME/.claude/patronum.json" "$HOME/.claude/patronum.log"; do
+  if [ -f "$LEGACY" ]; then
+    rm "$LEGACY"
+    echo "agento-patronum: removed legacy file $LEGACY"
+    REMOVED=$((REMOVED + 1))
+  fi
+done
 
 if [ "$REMOVED" -gt 0 ]; then
   echo "agento-patronum: cleanup complete. Plugin fully uninstalled."

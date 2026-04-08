@@ -4,7 +4,14 @@
 
 set -euo pipefail
 
-CONFIG_FILE="$HOME/.claude/patronum.json"
+if ! command -v jq &> /dev/null; then
+  echo "ERROR: jq is required but not installed. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
+  exit 1
+fi
+
+# Resolve config path (project-level takes priority over user-level)
+# shellcheck source=patronum-config-resolver.sh
+source "$(dirname "$0")/patronum-config-resolver.sh"
 
 if [ $# -lt 1 ]; then
   echo "Usage: patronum-add.sh \"<pattern>\" [--reason \"reason\"]" >&2
@@ -16,11 +23,6 @@ shift
 
 if [ -z "$PATTERN" ]; then
   echo "Error: pattern cannot be empty" >&2
-  exit 1
-fi
-
-if ! command -v jq &> /dev/null; then
-  echo "ERROR: jq is required but not installed. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
   exit 1
 fi
 
@@ -37,13 +39,13 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-if [ ! -f "$CONFIG_FILE" ]; then
-  echo "Error: $CONFIG_FILE not found. Run /patronum-verify to check setup." >&2
+if [ ! -f "$PATRONUM_CONFIG" ]; then
+  echo "Error: $PATRONUM_CONFIG not found. Run /patronum-verify to check setup." >&2
   exit 1
 fi
 
 # Check if pattern already exists
-EXISTING=$(jq -r --arg pat "$PATTERN" '.entries[] | select(.pattern == $pat) | .pattern' "$CONFIG_FILE")
+EXISTING=$(jq -r --arg pat "$PATTERN" '.entries[] | select(.pattern == $pat) | .pattern' "$PATRONUM_CONFIG")
 if [ -n "$EXISTING" ]; then
   echo "Pattern '$PATTERN' already exists in the protection list."
   exit 0
@@ -57,10 +59,10 @@ jq --arg pat "$PATTERN" \
    --arg reason "$REASON" \
    --arg ts "$TIMESTAMP" \
    '.entries += [{"pattern": $pat, "type": "glob", "reason": $reason, "addedAt": $ts, "source": "user"}]' \
-   "$CONFIG_FILE" > "$TMPFILE" && mv "$TMPFILE" "$CONFIG_FILE"
+   "$PATRONUM_CONFIG" > "$TMPFILE" && mv "$TMPFILE" "$PATRONUM_CONFIG"
 
 echo "Added pattern: $PATTERN"
 [ -n "$REASON" ] && echo "Reason: $REASON"
 
-COUNT=$(jq '.entries | length' "$CONFIG_FILE")
+COUNT=$(jq '.entries | length' "$PATRONUM_CONFIG")
 echo "Total patterns: $COUNT"

@@ -50,16 +50,38 @@ That's it. Hook active. Credentials shielded.
 Claude Code doesn't have a `PostInstall` lifecycle event yet — that would be the natural solution here, and may be added in a future version. For now, agento-patronum uses a `SessionStart` hook that runs setup on the first session start after installation. **Restart Claude Code once** after installing to activate protection.
 :::
 
-::: warning Install at user scope
-agento-patronum **must be installed at user scope** (the default). A project-scoped install only protects that one repository — your `~/.ssh/*`, `~/.aws/credentials`, and `.env` files in other projects would be unprotected.
+## Installation scopes
 
-```bash
-# ✅ Correct — protects all projects (default)
-/plugin install agento-patronum@emaarco
+| Scope | Command | Protects | Team-shared |
+|-------|---------|----------|-------------|
+| **user** *(default)* | `/plugin install agento-patronum@emaarco` | All your Claude Code sessions | No |
+| **project** | `/plugin install agento-patronum@emaarco --scope project` | This repository only | Yes — via `.claude/settings.json` |
+| **local** | `/plugin install agento-patronum@emaarco --scope local` | This repository only | No — gitignored |
 
-# ⚠️ Wrong for a security plugin — only protects one project
-/plugin install agento-patronum@emaarco --scope project
-```
+**User scope** *(recommended default)*
+- ✅ Install once — all projects on this machine are protected
+- ✅ Global files (`~/.ssh/`, `~/.aws/`, `.env`) are covered across every project
+- ❌ No per-project rule customisation out of the box
+- ❌ Each team member installs separately
+
+**Project scope**
+- ✅ Plugin enforced automatically for all contributors via committed `.claude/settings.json`
+- ✅ Per-project rules supported — add `~/.claude/patronum/projects/<repo-id>.json` on each machine
+- ❌ Only protects this repository's sessions — other projects are unprotected unless user scope is also installed
+- ❌ Per-project config lives on each machine individually, not committed to the repo
+
+**Local scope**
+- ✅ Per-project isolation without affecting teammates
+- ❌ Not shared; each contributor installs and configures separately
+
+::: tip Per-project rules
+agento-patronum stores configs in `~/.claude/patronum/`. When `~/.claude/patronum/projects/<repo-id>.json` exists, it takes priority over `user.json` for sessions in that repository — giving you isolated rules per project without touching the repo itself.
+:::
+
+::: info Which scope should I use?
+**Solo developer**: use **user scope** (the default). Install once, protected everywhere.
+
+**Team setup**: install at **project scope** — this commits `.claude/settings.json` so contributors get the plugin automatically when opening Claude Code in the repo. Encourage contributors to also install at user scope to protect their other projects.
 :::
 
 ## Verify installation
@@ -78,7 +100,7 @@ This runs a self-test that confirms the hook is blocking protected files and all
 /plugin uninstall agento-patronum@emaarco
 ```
 
-Your `~/.claude/patronum.json` config is preserved — your custom patterns won't be lost if you reinstall later.
+Your `~/.claude/patronum/` config directory is preserved — your custom patterns won't be lost if you reinstall later.
 
 To fully remove all agento-patronum data (config and audit log):
 

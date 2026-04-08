@@ -14,15 +14,26 @@ if ! command -v jq &> /dev/null; then
   exit 1
 fi
 
-CONFIG_DIR="$HOME/.claude"
-CONFIG_FILE="$CONFIG_DIR/patronum.json"
+PATRONUM_DIR="$HOME/.claude/patronum"
+CONFIG_FILE="$PATRONUM_DIR/user.json"
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 if [ -z "${CLAUDE_PLUGIN_ROOT:-}" ]; then
   echo "agento-patronum: warning: CLAUDE_PLUGIN_ROOT not set, using fallback path: $PLUGIN_ROOT" >&2
 fi
 DEFAULTS="$PLUGIN_ROOT/defaults/patronum.json"
 
-mkdir -p "$CONFIG_DIR"
+mkdir -p "$PATRONUM_DIR/projects"
+
+# Migrate from old flat location if needed
+OLD_CONFIG="$HOME/.claude/patronum.json"
+OLD_LOG="$HOME/.claude/patronum.log"
+if [ -f "$OLD_CONFIG" ] && [ ! -f "$CONFIG_FILE" ]; then
+  mv "$OLD_CONFIG" "$CONFIG_FILE"
+  echo "agento-patronum: migrated config from $OLD_CONFIG to $CONFIG_FILE"
+fi
+if [ -f "$OLD_LOG" ] && [ ! -f "$PATRONUM_DIR/user.log" ]; then
+  mv "$OLD_LOG" "$PATRONUM_DIR/user.log"
+fi
 
 if [ ! -f "$CONFIG_FILE" ]; then
   cp "$DEFAULTS" "$CONFIG_FILE"

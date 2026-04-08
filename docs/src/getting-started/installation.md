@@ -52,28 +52,32 @@ Claude Code doesn't have a `PostInstall` lifecycle event yet — that would be t
 
 ## Installation scopes
 
-| Scope | Command | Protects | Config location | Committed? |
-|-------|---------|----------|-----------------|------------|
-| **user** *(default)* | `/plugin install agento-patronum@emaarco` | All your sessions | `~/.claude/patronum/patronum.json` | No |
-| **project** | `/plugin install agento-patronum@emaarco --scope project` | This repository only | `.claude/patronum/patronum.json` | ✅ Yes |
-| **local** | `/plugin install agento-patronum@emaarco --scope local` | This repository only | `~/.claude/patronum/patronum.json` | No |
+| Scope | Hook registered in | Hook fires | Config location | Committed? |
+|-------|-------------------|-----------|-----------------|------------|
+| **user** *(default)* | `~/.claude/settings.json` | Every repo, every session | `~/.claude/patronum/patronum.json` | No |
+| **project** | `.claude/settings.json` | This repository (all contributors) | `.claude/patronum/patronum.json` | ✅ Yes |
+| **local** | `.claude/settings.local.json` | This repository (you only) | `~/.claude/patronum/patronum.json` | No |
+
+The key distinction: **scope controls where the hook fires**, not which config file it reads. User and local scope both use `~/.claude/patronum/patronum.json` — the difference is that user scope fires in every repo you open, while local scope only fires in that one repository.
 
 **User scope** *(recommended default)*
-- ✅ Install once — all projects on this machine are protected
-- ✅ Global files (`~/.ssh/`, `~/.aws/`, `.env`) covered across every project
+- ✅ Install once — protected in every repo on this machine
+- ✅ Global credentials (`~/.ssh/`, `~/.aws/`, `.env`) covered everywhere
 - ❌ No per-project rule customisation
 - ❌ Each team member installs separately
 
 **Project scope**
-- ✅ Plugin enforced for all contributors automatically via committed `.claude/settings.json`
-- ✅ Protection rules live in `.claude/patronum/patronum.json` — version-controlled alongside your code
-- ✅ On first SessionStart, agento-patronum creates `.claude/patronum/patronum.json` automatically if missing
-- ✅ Both configs active simultaneously — user rules always apply, project rules add on top (see below)
-- ❌ Only protects this repository's sessions — contributors should also install at user scope for their other projects
+- ✅ Hook committed to `.claude/settings.json` — every contributor gets it automatically
+- ✅ Team rules in `.claude/patronum/patronum.json` — version-controlled alongside your code
+- ✅ Auto-created on first `SessionStart` if missing
+- ✅ Both configs merged — user rules always apply, project rules add on top (see below)
+- ❌ Hook only fires in this repository — contributors should also install at user scope for their other projects
 
 **Local scope**
-- ✅ Per-project isolation without affecting teammates
-- ❌ Not shared; each contributor installs and configures separately
+- ✅ Try the plugin in one repo without affecting all your other sessions
+- ✅ Per-project activation without telling teammates (hook stays out of committed files)
+- ❌ Hook only fires in this repository — other repos are unprotected
+- ❌ Not shared; each contributor installs separately
 
 ::: tip Project-scope config is auto-created
 When agento-patronum is installed at project scope, `patronum-setup.sh` detects this on the first `SessionStart` and creates `.claude/patronum/patronum.json` with the default protections. Commit it to share your team's protection rules.

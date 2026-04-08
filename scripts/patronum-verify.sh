@@ -6,7 +6,7 @@ set -euo pipefail
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 HOOK_SCRIPT="$PLUGIN_ROOT/scripts/patronum-hook.sh"
-CONFIG_FILE="$HOME/.claude/patronum/user.json"
+CONFIG_FILE="$HOME/.claude/patronum/patronum.json"
 PASS=0
 FAIL=0
 
@@ -81,11 +81,11 @@ PATRONUM_DIR="$HOME/.claude/patronum"
 if [ ! -d "$PATRONUM_DIR" ]; then
   check_install "~/.claude/patronum/ directory exists" fail "run setup or reinstall the plugin"
 elif [ ! -f "$CONFIG_FILE" ]; then
-  check_install "~/.claude/patronum/user.json exists" fail "run setup or reinstall the plugin"
+  check_install "~/.claude/patronum/patronum.json exists" fail "run setup or reinstall the plugin"
 elif jq empty "$CONFIG_FILE" 2>/dev/null; then
-  check_install "~/.claude/patronum/user.json valid JSON" pass
+  check_install "~/.claude/patronum/patronum.json valid JSON" pass
 else
-  check_install "~/.claude/patronum/user.json valid JSON" fail "file is malformed — delete it and re-run setup"
+  check_install "~/.claude/patronum/patronum.json valid JSON" fail "file is malformed — delete it and re-run setup"
 fi
 
 if [ "$INSTALL_FAIL" -gt 0 ]; then

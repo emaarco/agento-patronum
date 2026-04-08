@@ -54,9 +54,9 @@ Claude Code doesn't have a `PostInstall` lifecycle event yet — that would be t
 
 | Scope | Command | Protects | Config location | Committed? |
 |-------|---------|----------|-----------------|------------|
-| **user** *(default)* | `/plugin install agento-patronum@emaarco` | All your sessions | `~/.claude/patronum/user.json` | No |
+| **user** *(default)* | `/plugin install agento-patronum@emaarco` | All your sessions | `~/.claude/patronum/patronum.json` | No |
 | **project** | `/plugin install agento-patronum@emaarco --scope project` | This repository only | `.claude/patronum/patronum.json` | ✅ Yes |
-| **local** | `/plugin install agento-patronum@emaarco --scope local` | This repository only | `~/.claude/patronum/user.json` | No |
+| **local** | `/plugin install agento-patronum@emaarco --scope local` | This repository only | `~/.claude/patronum/patronum.json` | No |
 
 **User scope** *(recommended default)*
 - ✅ Install once — all projects on this machine are protected

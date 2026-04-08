@@ -8,7 +8,7 @@ PATRONUM_DIR="$HOME/.claude/patronum"
 REMOVED=0
 
 if [ -d "$PATRONUM_DIR" ]; then
-  CONFIG_FILE="$PATRONUM_DIR/user.json"
+  CONFIG_FILE="$PATRONUM_DIR/patronum.json"
   COUNT="unknown"
   if [ -f "$CONFIG_FILE" ]; then
     COUNT=$(jq '.entries | length' "$CONFIG_FILE" 2>/dev/null || echo "unknown")

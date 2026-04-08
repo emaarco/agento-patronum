@@ -4,11 +4,11 @@
 #
 # Priority:
 #   1. .claude/patronum/patronum.json  (git repo root, committed — project/team config)
-#   2. ~/.claude/patronum/user.json    (machine-local — user config fallback)
+#   2. ~/.claude/patronum/patronum.json    (machine-local — user config fallback)
 
 PATRONUM_DIR="$HOME/.claude/patronum"
-PATRONUM_CONFIG="$PATRONUM_DIR/user.json"
-PATRONUM_LOG="$PATRONUM_DIR/user.log"
+PATRONUM_CONFIG="$PATRONUM_DIR/patronum.json"
+PATRONUM_LOG="$PATRONUM_DIR/patronum.log"
 
 _PATRONUM_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
 if [ -n "$_PATRONUM_ROOT" ]; then

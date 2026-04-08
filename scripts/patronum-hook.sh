@@ -17,20 +17,31 @@ if [ -z "${HOME:-}" ]; then
   exit 2
 fi
 
-# Resolve config path: project-level takes priority over user-level
+# Resolve config paths (user + optional project, both loaded)
 # shellcheck source=patronum-config-resolver.sh
 source "$(dirname "$0")/patronum-config-resolver.sh"
 
-# If no config exists, allow everything
-if [ ! -f "$PATRONUM_CONFIG" ]; then
+# Emit TSV of all patterns from every active config (user + project merged)
+patronum_entries() {
+  [ -f "$PATRONUM_USER_CONFIG" ] && jq -r '.entries[] | [.pattern, .reason] | @tsv' "$PATRONUM_USER_CONFIG"
+  [ -n "${PATRONUM_PROJ_CONFIG:-}" ] && [ -f "$PATRONUM_PROJ_CONFIG" ] && \
+    jq -r '.entries[] | [.pattern, .reason] | @tsv' "$PATRONUM_PROJ_CONFIG"
+}
+
+# If no configs exist at all, allow everything (fail-open)
+if [ ! -f "$PATRONUM_USER_CONFIG" ] && \
+   { [ -z "${PATRONUM_PROJ_CONFIG:-}" ] || [ ! -f "$PATRONUM_PROJ_CONFIG" ]; }; then
   exit 0
 fi
 
-# Fail closed if config is not valid JSON
-if ! jq empty "$PATRONUM_CONFIG" 2>/dev/null; then
-  echo "PATRONUM: config file is invalid JSON — blocking all tool calls as safe default" >&2
-  exit 2
-fi
+# Fail closed if any present config is invalid JSON
+for _CFG in "$PATRONUM_USER_CONFIG" ${PATRONUM_PROJ_CONFIG:+"$PATRONUM_PROJ_CONFIG"}; do
+  if [ -f "$_CFG" ] && ! jq empty "$_CFG" 2>/dev/null; then
+    echo "PATRONUM: config file '$_CFG' is invalid JSON — blocking all tool calls as safe default" >&2
+    exit 2
+  fi
+done
+unset _CFG
 
 # Read hook input from stdin
 INPUT=$(cat)
@@ -91,7 +102,7 @@ case "$TOOL_NAME" in
             exit 2
           fi
         fi
-      done < <(jq -r '.entries[] | [.pattern, .reason] | @tsv' "$PATRONUM_CONFIG")
+      done < <(patronum_entries)
     done < <(echo "$INPUT" | jq -r '.tool_input.edits[]?.file_path // empty')
     exit 0
     ;;
@@ -163,6 +174,6 @@ while IFS=$'\t' read -r PATTERN REASON; do
   fi
   unset BASENAME_PATTERN
 
-done < <(jq -r '.entries[] | [.pattern, .reason] | @tsv' "$PATRONUM_CONFIG")
+done < <(patronum_entries)
 
 exit 0

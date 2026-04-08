@@ -68,6 +68,7 @@ Claude Code doesn't have a `PostInstall` lifecycle event yet — that would be t
 - ✅ Plugin enforced for all contributors automatically via committed `.claude/settings.json`
 - ✅ Protection rules live in `.claude/patronum/patronum.json` — version-controlled alongside your code
 - ✅ On first SessionStart, agento-patronum creates `.claude/patronum/patronum.json` automatically if missing
+- ✅ Both configs active simultaneously — user rules always apply, project rules add on top (see below)
 - ❌ Only protects this repository's sessions — contributors should also install at user scope for their other projects
 
 **Local scope**
@@ -83,10 +84,23 @@ Add the audit log to your `.gitignore`:
 ```
 :::
 
+### Config merging
+
+When a project-scope config exists alongside the user config, **both are active at the same time**. Rules are merged, not replaced:
+
+| Config | Always loaded? | Purpose |
+|--------|---------------|---------|
+| `~/.claude/patronum/patronum.json` | ✅ Yes | Personal rules — `~/.ssh/`, `~/.aws/`, global patterns |
+| `.claude/patronum/patronum.json` | When present in git root | Team rules — project-specific files and commands |
+
+This means your personal credential protections can never be silently overridden by a project config. A contributor working in a project-scope repo gets both their own user rules and the team's project rules enforced simultaneously.
+
+`/patronum-list` shows each config separately so you can see exactly which rules are active.
+
 ::: info Which scope should I use?
 **Solo developer**: use **user scope** (the default). Install once, protected everywhere.
 
-**Team setup**: install at **project scope** — `.claude/settings.json` is committed so every contributor gets the plugin automatically. The shared `.claude/patronum/patronum.json` ensures everyone enforces the same rules. Encourage contributors to also install at user scope to protect their other projects.
+**Team setup**: install at **project scope** — `.claude/settings.json` is committed so every contributor gets the plugin automatically. The shared `.claude/patronum/patronum.json` ensures everyone enforces the same rules. Encourage contributors to also install at user scope so their personal credential protections (SSH keys, AWS credentials) remain active in every project they work on.
 :::
 
 ## Verify installation

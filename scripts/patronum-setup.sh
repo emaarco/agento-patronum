@@ -17,6 +17,9 @@ fi
 CONFIG_DIR="$HOME/.claude"
 CONFIG_FILE="$CONFIG_DIR/patronum.json"
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+if [ -z "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  echo "agento-patronum: warning: CLAUDE_PLUGIN_ROOT not set, using fallback path: $PLUGIN_ROOT" >&2
+fi
 DEFAULTS="$PLUGIN_ROOT/defaults/patronum.json"
 
 mkdir -p "$CONFIG_DIR"

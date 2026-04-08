@@ -30,22 +30,72 @@ run_test() {
 echo "agento-patronum: running self-test"
 echo ""
 
-# Check prerequisites
-if ! command -v jq &> /dev/null; then
-  echo "FAIL: jq is not installed. Install it with: brew install jq (macOS) or apt install jq (Linux)"
-  exit 1
+# ── Installation Check ────────────────────────────────────────────────────────
+echo "── Installation Check ──────────────────────────────────────────────────────"
+INSTALL_FAIL=0
+
+check_install() {
+  local DESCRIPTION="$1"
+  local RESULT="$2"  # "pass" or "fail"
+  local DETAIL="${3:-}"
+  if [ "$RESULT" = "pass" ]; then
+    echo "  PASS: $DESCRIPTION"
+  else
+    echo "  FAIL: $DESCRIPTION${DETAIL:+ — $DETAIL}"
+    INSTALL_FAIL=$((INSTALL_FAIL + 1))
+  fi
+}
+
+# Check jq dependency
+if command -v jq &> /dev/null; then
+  check_install "jq installed" pass
+else
+  check_install "jq installed" fail "install with: brew install jq (macOS) or apt install jq (Linux)"
 fi
 
+# Show CLAUDE_PLUGIN_ROOT resolution
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  echo "  INFO: CLAUDE_PLUGIN_ROOT set → $PLUGIN_ROOT"
+else
+  echo "  INFO: CLAUDE_PLUGIN_ROOT not set, using fallback → $PLUGIN_ROOT"
+fi
+
+# Check all expected scripts exist
+for SCRIPT in patronum-hook.sh patronum-setup.sh patronum-add.sh patronum-remove.sh patronum-list.sh patronum-verify.sh patronum-uninstall.sh; do
+  if [ -f "$PLUGIN_ROOT/scripts/$SCRIPT" ]; then
+    check_install "scripts/$SCRIPT present" pass
+  else
+    check_install "scripts/$SCRIPT present" fail "not found at $PLUGIN_ROOT/scripts/$SCRIPT"
+  fi
+done
+
+# Check defaults file
+if [ -f "$PLUGIN_ROOT/defaults/patronum.json" ]; then
+  check_install "defaults/patronum.json present" pass
+else
+  check_install "defaults/patronum.json present" fail "not found at $PLUGIN_ROOT/defaults/patronum.json"
+fi
+
+# Check config file exists and is valid JSON
 if [ ! -f "$CONFIG_FILE" ]; then
-  echo "FAIL: Config not found at $CONFIG_FILE. Run setup first."
+  check_install "~/.claude/patronum.json exists" fail "run setup or reinstall the plugin"
+elif jq empty "$CONFIG_FILE" 2>/dev/null; then
+  check_install "~/.claude/patronum.json valid JSON" pass
+else
+  check_install "~/.claude/patronum.json valid JSON" fail "file is malformed — delete it and re-run setup"
+fi
+
+if [ "$INSTALL_FAIL" -gt 0 ]; then
+  echo ""
+  echo "Installation check failed ($INSTALL_FAIL issue(s)). Fix the above before running enforcement tests."
   exit 1
 fi
 
-if [ ! -f "$HOOK_SCRIPT" ]; then
-  echo "FAIL: Hook script not found at $HOOK_SCRIPT"
-  exit 1
-fi
+echo ""
 
+# ── Enforcement Tests ─────────────────────────────────────────────────────────
+echo "── Enforcement Tests ────────────────────────────────────────────────────────"
+echo ""
 echo "Config: $CONFIG_FILE"
 echo "Hook:   $HOOK_SCRIPT"
 echo ""

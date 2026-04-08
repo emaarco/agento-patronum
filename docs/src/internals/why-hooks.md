@@ -1,10 +1,10 @@
 # Why Hooks (not settings.json)
 
-Claude Code supports `permissions.deny` rules in `settings.json`. In theory, these should block access to specified files. In practice, they don't work reliably.
+Claude Code has a built-in `permissions.deny` mechanism in `settings.json`. It's the obvious first choice — but a growing number of community reports suggest it doesn't hold up well in practice.
 
-## The problem
+## The problem with settings.json
 
-`settings.json` deny rules are **frequently ignored**. This is not a theoretical concern — it's a well-documented issue with multiple reports:
+Issues have been filed across a range of scenarios: file reads, file writes, Bash commands, sub-agents, symlink traversal, and even managed settings from the Anthropic Console:
 
 - [Critical Security Bug: deny permissions in settings.json are not enforced](https://github.com/anthropics/claude-code/issues/6699)
 - [Permission Deny Configuration Not Enforced for Read/Write Tools](https://github.com/anthropics/claude-code/issues/6631)
@@ -13,13 +13,20 @@ Claude Code supports `permissions.deny` rules in `settings.json`. In theory, the
 - [Permission Deny Bypass Through Symbolic Links](https://github.com/anthropics/claude-code/security/advisories/GHSA-4q92-rfm6-2cqx) (security advisory)
 - [Deny permission rules not blocking commands, falling through to ask](https://github.com/anthropics/claude-code/issues/27547)
 
-The bypass affects file read/write patterns, Bash command execution, sub-agents, and even managed settings configured in the Anthropic Console. Relying on `settings.json` for security gives a false sense of protection.
+Not all of these may still be reproducible — but the breadth of the pattern is hard to dismiss. When you're protecting credentials or sensitive files, "usually works" isn't enough.
 
-## The solution
+## Why hooks are a better fit
 
-**PreToolUse hooks** are the only reliable enforcement layer. A hook runs as a shell script before every tool call. It receives the tool name and input as JSON on stdin, and can:
+`PreToolUse` hooks run as an executable before every tool call — a shell script, a Node script, a Python script, whatever fits your setup. They receive the tool name and input as JSON on stdin, and the response is simple:
 
-- **Allow** the call (exit 0)
-- **Block** the call (exit 2, with reason on stderr)
+- **exit 0** — allow the call
+- **exit 2** — block it, with a reason on stderr
 
-Claude Code **cannot bypass hooks** — they are enforced at the runtime level, not the prompt level.
+What makes this more than just another deny mechanism is visibility. Every blocked call is explicit and logged — you know exactly what fired, when, and why. There's no silent fallthrough, no ambiguity about whether a rule was applied.
+
+Unlike a passive config rule, a hook is code you own — you decide what runs, what blocks, and what gets logged.
+
+## Further reading
+
+- [Hooks Guide](https://docs.anthropic.com/en/docs/claude-code/hooks-guide) — practical introduction, common patterns, and lifecycle overview
+- [Hooks Reference](https://docs.anthropic.com/en/docs/claude-code/hooks) — complete technical reference: configuration schema, input/output formats, exit codes, matcher syntax, and all hook event types

@@ -6,7 +6,7 @@
   "plugins": [
     {
       "name": "agento-patronum",
-      "source": ".",
+      "source": "./",
       "description": "Protects sensitive files, credentials, and commands from unintended AI access via PreToolUse hooks."
     }
   ]

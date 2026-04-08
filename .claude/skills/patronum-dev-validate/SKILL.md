@@ -15,8 +15,18 @@ Run all plugin validation checks locally.
 
 ```bash
 jq empty .claude-plugin/plugin.json && echo "plugin.json OK"
+jq empty .claude-plugin/marketplace.json && echo "marketplace.json OK"
 jq empty hooks/hooks.json && echo "hooks.json OK"
 jq empty defaults/patronum.json && echo "patronum.json OK"
+```
+
+### 1b. marketplace.json schema
+
+Verify the `source` field starts with `./` (required by Claude Code):
+
+```bash
+jq -e '.plugins[] | (.source | type) == "string" and startswith("./")' \
+  .claude-plugin/marketplace.json && echo "marketplace source OK"
 ```
 
 ### 2. Default patterns check

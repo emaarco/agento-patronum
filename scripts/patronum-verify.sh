@@ -140,6 +140,44 @@ run_test "Block Write .env.local" \
   '{"tool_name":"Write","tool_input":{"file_path":"/project/.env.local"}}' \
   2
 
+# Test 9: Should block Edit on .env (same protection as Read/Write)
+run_test "Block Edit .env" \
+  '{"tool_name":"Edit","tool_input":{"file_path":"/project/.env"}}' \
+  2
+
+# Test 10: Should block MultiEdit touching a protected file
+run_test "Block MultiEdit .env" \
+  '{"tool_name":"MultiEdit","tool_input":{"edits":[{"file_path":"/project/.env","old_string":"x","new_string":"y"}]}}' \
+  2
+
+# Test 11: Should allow MultiEdit on a safe file
+run_test "Allow MultiEdit safe file" \
+  '{"tool_name":"MultiEdit","tool_input":{"edits":[{"file_path":"/tmp/safe.txt","old_string":"x","new_string":"y"}]}}' \
+  0
+
+# Test 12: Should block Bash(set) — exposes shell variables
+run_test "Block Bash(set)" \
+  '{"tool_name":"Bash","tool_input":{"command":"set"}}' \
+  2
+
+# Test 13: Should allow env with variable assignment (not a dump)
+run_test "Allow Bash(env NODE_ENV=test npm run build)" \
+  '{"tool_name":"Bash","tool_input":{"command":"env NODE_ENV=test npm run build"}}' \
+  0
+
+# Test 14: No-config guard — with a nonexistent config, hook should allow (fail-open)
+ORIG_CONFIG="$CONFIG_FILE"
+TEMP_ABSENT="$HOME/.claude/patronum.json.verify-absent"
+mv "$CONFIG_FILE" "$TEMP_ABSENT" 2>/dev/null || true
+if [ ! -f "$CONFIG_FILE" ]; then
+  run_test "No-config: allow all (fail-open)" \
+    '{"tool_name":"Read","tool_input":{"file_path":"'"$HOME"'/.ssh/id_rsa"}}' \
+    0
+  mv "$TEMP_ABSENT" "$CONFIG_FILE"
+else
+  echo "  SKIP: could not temporarily remove config for no-config test"
+fi
+
 echo ""
 echo "Results: $PASS passed, $FAIL failed"
 

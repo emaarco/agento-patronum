@@ -13,6 +13,11 @@ fi
 
 PATTERN="$1"
 
+if ! command -v jq &> /dev/null; then
+  echo "ERROR: jq is required but not installed. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
+  exit 1
+fi
+
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "Error: $CONFIG_FILE not found. Run /patronum-verify to check setup." >&2
   exit 1

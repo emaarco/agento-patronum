@@ -14,6 +14,16 @@ fi
 PATTERN="$1"
 shift
 
+if [ -z "$PATTERN" ]; then
+  echo "Error: pattern cannot be empty" >&2
+  exit 1
+fi
+
+if ! command -v jq &> /dev/null; then
+  echo "ERROR: jq is required but not installed. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
+  exit 1
+fi
+
 REASON=""
 while [ $# -gt 0 ]; do
   case "$1" in

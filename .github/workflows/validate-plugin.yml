@@ -41,7 +41,8 @@ jobs:
       - name: Check script permissions
         run: |
           for f in scripts/patronum-*.sh; do
-            test -x "$f" && echo "$f: executable OK"
+            test -x "$f" || (echo "$f: not executable" && exit 1)
+            echo "$f: executable OK"
           done
 
       - name: Validate SKILL.md frontmatter

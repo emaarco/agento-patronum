@@ -85,13 +85,6 @@
       "source": "default"
     },
     {
-      "pattern": "Bash(env)",
-      "type": "glob",
-      "reason": "Exposes all environment variables including secrets",
-      "addedAt": "2026-04-08T00:00:00Z",
-      "source": "default"
-    },
-    {
       "pattern": "Bash(set)",
       "type": "glob",
       "reason": "Exposes all shell variables including secrets",

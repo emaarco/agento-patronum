@@ -16,7 +16,7 @@ hero:
 features:
   - icon: "\uD83D\uDD12"
     title: Hook-Based Enforcement
-    details: Settings.json deny rules are frequently bypassed. agento-patronum uses PreToolUse hooks — the only enforcement layer Claude Code can't silently skip.
+    details: Built-in access controls may not always be reliable. agento-patronum uses PreToolUse hooks — an explicit enforcement layer you control and can verify yourself.
   - icon: "\uD83E\uDDD9"
     title: Stack-Aware Suggestions
     details: Detects your tech stack and suggests what to protect. AWS, Terraform, Docker, GCP — it knows the sensitive files before you do.
@@ -24,6 +24,16 @@ features:
     title: Install Once, Always Protected
     details: Two commands to install. Your custom rules survive plugin updates. Every blocked action is logged for audit. Pure bash + jq, no dependencies.
 ---
+
+::: info Early version
+agento-patronum is under active development (v0.1.0). Features and defaults may change between releases. Feedback is very welcome.
+:::
+
+<div class="version-chip">
+  <a href="https://github.com/emaarco/agento-patronum/releases" target="_blank">
+    <img alt="Version" src="https://img.shields.io/github/v/release/emaarco/agento-patronum?label=version&color=blueviolet&style=flat-square" />
+  </a>
+</div>
 
 <div class="landing-content">
 
@@ -36,11 +46,11 @@ features:
 <div class="problem-layout">
 <div class="problem-text">
 
-AI coding agents are transforming how we build software. Millions of developers use them daily — with **full, unrestricted access** to their projects.
+AI coding agents are transforming how we build software. By default, they have access to everything in your project — `.env` files, SSH keys, AWS credentials, and API tokens. Not maliciously, just helpfully.
 
-That includes `.env` files, SSH keys, AWS credentials, and API tokens. The agent reads everything — not maliciously, just helpfully. And `settings.json` deny rules? They're [frequently](https://github.com/anthropics/claude-code/issues/6699) [bypassed](https://github.com/anthropics/claude-code/issues/25000) — backed by [multiple open issues](https://github.com/anthropics/claude-code/issues/6631) and a [security advisory](https://github.com/anthropics/claude-code/security/advisories/GHSA-4q92-rfm6-2cqx).
+Most tools offer some access controls. Whether those reliably work in all cases is hard to know — [past reports](https://github.com/anthropics/claude-code/issues/6699) suggest there can be gaps. Rather than relying on built-in rules and hoping for the best, agento-patronum gives you explicit, hook-based control you can verify yourself.
 
-**There is no reliable built-in way to say "never touch this file."** Until now.
+It's one approach — there are others, and you can also roll your own. The goal is simply to make file protection accessible and transparent.
 
 </div>
 <div class="exposed-tags">
@@ -370,5 +380,11 @@ agento-patronum intercepts every tool call **before execution**. If the target m
     flex: auto;
     width: 100%;
   }
+}
+
+.version-chip {
+  max-width: 900px;
+  margin: 0.75rem auto 0;
+  padding: 0 1.5rem;
 }
 </style>

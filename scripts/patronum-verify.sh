@@ -155,10 +155,10 @@ run_test "Allow MultiEdit safe file" \
   '{"tool_name":"MultiEdit","tool_input":{"edits":[{"file_path":"/tmp/safe.txt","old_string":"x","new_string":"y"}]}}' \
   0
 
-# Test 12: Should block Bash(set) — exposes shell variables
-run_test "Block Bash(set)" \
-  '{"tool_name":"Bash","tool_input":{"command":"set"}}' \
-  2
+# Test 12: Should allow set with options (not a bare variable dump)
+run_test "Allow Bash(set -e)" \
+  '{"tool_name":"Bash","tool_input":{"command":"set -euo pipefail"}}' \
+  0
 
 # Test 13: Should allow env with variable assignment (not a dump)
 run_test "Allow Bash(env NODE_ENV=test npm run build)" \

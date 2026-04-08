@@ -1,0 +1,89 @@
+{
+  "entries": [
+    {
+      "pattern": "**/.env",
+      "type": "glob",
+      "reason": "Environment files may contain credentials",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "**/.env.*",
+      "type": "glob",
+      "reason": "Environment variable overrides may contain secrets",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "**/*.pem",
+      "type": "glob",
+      "reason": "PEM files contain private keys or certificates",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "**/*.key",
+      "type": "glob",
+      "reason": "Key files contain private keys",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.ssh/*",
+      "type": "glob",
+      "reason": "SSH directory contains private keys and config",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.aws/credentials",
+      "type": "glob",
+      "reason": "AWS credentials file contains access keys",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.aws/config",
+      "type": "glob",
+      "reason": "AWS config may contain sensitive account data",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.docker/config.json",
+      "type": "glob",
+      "reason": "Docker config may contain registry auth tokens",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.kube/config",
+      "type": "glob",
+      "reason": "Kubernetes config contains cluster credentials",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.npmrc",
+      "type": "glob",
+      "reason": "NPM config may contain auth tokens",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.pypirc",
+      "type": "glob",
+      "reason": "PyPI config may contain auth tokens",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "Bash(printenv)",
+      "type": "glob",
+      "reason": "Exposes all environment variables including secrets",
+      "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    }
+  ],
+  "version": "1"
+}

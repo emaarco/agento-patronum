@@ -1,0 +1,17 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - automated
+
+  - package-ecosystem: npm
+    directory: /docs
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies
+      - documentation

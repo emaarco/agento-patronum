@@ -7,7 +7,7 @@
 
 ---
 
-## What it protects you from
+## 🛡️ What it protects you from
 
 Claude Code is powerful. That power needs boundaries.
 When Claude can read your `.env`, your SSH keys, your AWS credentials — it will.
@@ -16,7 +16,7 @@ Not maliciously. Just helpfully. agento-patronum draws the line.
 It enforces file protection via **PreToolUse hooks** — the only layer Claude Code can't silently bypass.
 Settings.json deny rules are [confirmed buggy](https://emaarco.github.io/agento-patronum/internals/why-hooks). Hooks are reliable.
 
-## Install in two commands
+## ⚡ Install in two commands
 
 ```bash
 # Add marketplace (once per machine)
@@ -28,7 +28,7 @@ Settings.json deny rules are [confirmed buggy](https://emaarco.github.io/agento-
 
 Restart Claude Code once. Done. Run `/patronum-verify` to confirm.
 
-## Prerequisites
+## 📋 Prerequisites
 
 agento-patronum requires **jq** for JSON processing. Install it:
 
@@ -48,7 +48,7 @@ apt install jq
 
 The setup script will fail with a clear error if jq is missing. No other dependencies.
 
-## Available skills
+## 🧰 Available skills
 
 agento-patronum is built with [skills](https://agentskills.io) — the open specification for agent capabilities. Invoke them as slash commands in Claude Code:
 
@@ -60,7 +60,7 @@ agento-patronum is built with [skills](https://agentskills.io) — the open spec
 | `/patronum-suggest` | Get stack-specific protection suggestions |
 | `/patronum-verify` | Run self-test to verify enforcement |
 
-## What's protected by default
+## 🔒 What's protected by default
 
 Out of the box, agento-patronum blocks access to:
 
@@ -77,13 +77,13 @@ Out of the box, agento-patronum blocks access to:
 
 Need more? Run `/patronum-suggest` — it analyzes your stack and recommends what to add.
 
-## How it works
+## ⚙️ How it works
 
 agento-patronum registers a `PreToolUse` hook that intercepts every `Read`, `Write`, `Edit`, and `Bash` tool call. It checks the file path or command against patterns in `~/.claude/patronum.json`. If a pattern matches, the tool call is blocked and logged.
 
 No cloud, no binary, no Python. Pure bash + jq.
 
-## Story behind the plugin
+## 📖 Story behind the plugin
 
 Claude Code's `permissions.deny` rules in `settings.json` should prevent access to sensitive files.
 They don't — deny rules are frequently ignored due to confirmed bugs.
@@ -93,7 +93,7 @@ The plugin makes this protection accessible via two install commands and managea
 
 Read more in the [documentation](https://emaarco.github.io/agento-patronum/internals/why-hooks).
 
-## Contributing
+## 🤝 Contributing
 
 Contributions welcome! You can:
 

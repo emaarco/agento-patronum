@@ -1,5 +1,7 @@
 # Contributing
 
+agento-patronum is open source. Whether you want to fix a bug, add a default pattern, or improve the docs — every contribution is welcome.
+
 ## Local Development
 
 Clone the repo and run the self-test to confirm everything works:

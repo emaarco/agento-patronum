@@ -20,15 +20,6 @@ else
   echo "agento-patronum: no config directory found at $PATRONUM_DIR"
 fi
 
-# Remove legacy flat files if present (pre-migration)
-for LEGACY in "$HOME/.claude/patronum.json" "$HOME/.claude/patronum.log"; do
-  if [ -f "$LEGACY" ]; then
-    rm "$LEGACY"
-    echo "agento-patronum: removed legacy file $LEGACY"
-    REMOVED=$((REMOVED + 1))
-  fi
-done
-
 if [ "$REMOVED" -gt 0 ]; then
   echo "agento-patronum: cleanup complete. Plugin fully uninstalled."
 else

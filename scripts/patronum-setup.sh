@@ -24,17 +24,6 @@ DEFAULTS="$PLUGIN_ROOT/defaults/patronum.json"
 
 mkdir -p "$PATRONUM_DIR/projects"
 
-# Migrate from old flat location if needed
-OLD_CONFIG="$HOME/.claude/patronum.json"
-OLD_LOG="$HOME/.claude/patronum.log"
-if [ -f "$OLD_CONFIG" ] && [ ! -f "$CONFIG_FILE" ]; then
-  mv "$OLD_CONFIG" "$CONFIG_FILE"
-  echo "agento-patronum: migrated config from $OLD_CONFIG to $CONFIG_FILE"
-fi
-if [ -f "$OLD_LOG" ] && [ ! -f "$PATRONUM_DIR/user.log" ]; then
-  mv "$OLD_LOG" "$PATRONUM_DIR/user.log"
-fi
-
 if [ ! -f "$CONFIG_FILE" ]; then
   cp "$DEFAULTS" "$CONFIG_FILE"
   echo "agento-patronum: first-time setup complete. Default protections installed."

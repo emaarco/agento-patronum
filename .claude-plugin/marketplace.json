@@ -3,6 +3,9 @@
   "owner": {
     "name": "emaarco"
   },
+  "metadata": {
+    "description": "Plugins by emaarco. Protect sensitive files, credentials, and commands from unintended AI access in Claude Code."
+  },
   "plugins": [
     {
       "name": "agento-patronum",

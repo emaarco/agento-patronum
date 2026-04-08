@@ -4,6 +4,16 @@
 
 set -euo pipefail
 
+# Check for jq dependency
+if ! command -v jq &> /dev/null; then
+  echo "ERROR: jq is required but not installed." >&2
+  echo "Install with:" >&2
+  echo "  macOS:  brew install jq" >&2
+  echo "  Linux:  apt install jq (Debian/Ubuntu) or yum install jq (RHEL/CentOS)" >&2
+  echo "  WSL:    apt install jq" >&2
+  exit 1
+fi
+
 CONFIG_DIR="$HOME/.claude"
 CONFIG_FILE="$CONFIG_DIR/patronum.json"
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"

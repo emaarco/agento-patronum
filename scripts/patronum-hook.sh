@@ -5,6 +5,12 @@
 
 set -euo pipefail
 
+# Check for jq dependency
+if ! command -v jq &> /dev/null; then
+  echo "ERROR: jq is required but not installed. agento-patronum cannot function." >&2
+  exit 1
+fi
+
 PATRONUM_CONFIG="$HOME/.claude/patronum.json"
 PATRONUM_LOG="$HOME/.claude/patronum.log"
 

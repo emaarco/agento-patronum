@@ -28,10 +28,32 @@ Settings.json deny rules are [confirmed buggy](https://emaarco.github.io/agento-
 
 Restart Claude Code once. Done. Run `/patronum-verify` to confirm.
 
-## Available commands
+## Prerequisites
 
-| Command | Description |
-|---------|-------------|
+agento-patronum requires **jq** for JSON processing. Install it:
+
+```bash
+# macOS
+brew install jq
+
+# Linux (Debian/Ubuntu)
+apt install jq
+
+# Linux (RHEL/CentOS)
+yum install jq
+
+# WSL / Windows
+apt install jq
+```
+
+The setup script will fail with a clear error if jq is missing. No other dependencies.
+
+## Available skills
+
+agento-patronum is built with [skills](https://agentskills.io) — the open specification for agent capabilities. Invoke them as slash commands in Claude Code:
+
+| Skill | Description |
+|-------|-------------|
 | `/patronum-add` | Add a pattern to the protection list |
 | `/patronum-remove` | Remove a pattern |
 | `/patronum-list` | Show all protected patterns |

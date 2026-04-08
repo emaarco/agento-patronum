@@ -1,5 +1,7 @@
 # Installation
 
+Get agento-patronum running in under a minute. Two commands, one restart — your credentials are shielded.
+
 ## Prerequisites
 
 agento-patronum requires **jq** for JSON processing. Check if you have it:

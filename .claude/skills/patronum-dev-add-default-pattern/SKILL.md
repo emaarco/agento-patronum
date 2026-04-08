@@ -1,12 +1,12 @@
 ---
-name: add-default-pattern
+name: patronum-dev-add-default-pattern
 argument-hint: "\"<pattern>\" --reason \"<reason>\""
 description: "Add a new default pattern to defaults/patronum.json with correct schema and validation."
 disable-model-invocation: true
 allowed-tools: Read, Edit, Bash(jq *), Bash(CLAUDE_PLUGIN_ROOT=* bash scripts/patronum-verify.sh)
 ---
 
-# Skill: add-default-pattern
+# Skill: patronum-dev-add-default-pattern
 
 Add a new pattern to the default protection list shipped with the plugin.
 

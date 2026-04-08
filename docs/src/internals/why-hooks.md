@@ -4,13 +4,16 @@ Claude Code supports `permissions.deny` rules in `settings.json`. In theory, the
 
 ## The problem
 
-`settings.json` deny rules are **frequently ignored**. This is a confirmed bug — Claude Code sometimes silently bypasses deny rules, especially for:
+`settings.json` deny rules are **frequently ignored**. This is not a theoretical concern — it's a well-documented issue with multiple reports:
 
-- Nested paths
-- Glob patterns
-- Bash tool calls
+- [Critical Security Bug: deny permissions in settings.json are not enforced](https://github.com/anthropics/claude-code/issues/6699)
+- [Permission Deny Configuration Not Enforced for Read/Write Tools](https://github.com/anthropics/claude-code/issues/6631)
+- [Sub-agents bypass permission deny rules and per-command approval](https://github.com/anthropics/claude-code/issues/25000)
+- [Read deny permissions in settings.json not enforced for .env files](https://github.com/anthropics/claude-code/issues/24846)
+- [Permission Deny Bypass Through Symbolic Links](https://github.com/anthropics/claude-code/security/advisories/GHSA-4q92-rfm6-2cqx) (security advisory)
+- [Deny permission rules not blocking commands, falling through to ask](https://github.com/anthropics/claude-code/issues/27547)
 
-This means relying on `settings.json` for security is a false sense of protection.
+The bypass affects file read/write patterns, Bash command execution, sub-agents, and even managed settings configured in the Anthropic Console. Relying on `settings.json` for security gives a false sense of protection.
 
 ## The solution
 
@@ -20,7 +23,3 @@ This means relying on `settings.json` for security is a false sense of protectio
 - **Block** the call (exit 2, with reason on stderr)
 
 Claude Code **cannot bypass hooks** — they are enforced at the runtime level, not the prompt level.
-
-::: info Why agento-patronum uses both
-agento-patronum uses hooks as the primary enforcement layer. In a future version, it may also write `settings.json` deny rules as a secondary best-effort layer — belt and suspenders. But hooks are what actually protect you.
-:::

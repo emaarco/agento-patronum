@@ -17,9 +17,11 @@ Install via Claude Code marketplace:
 ### Plugin Structure
 - `.claude-plugin/plugin.json` — marketplace manifest
 - `hooks/hooks.json` — registers SessionStart + PreToolUse hooks
-- `scripts/patronum-*.sh` — all shell scripts (hook, setup, add, remove, list, verify)
+- `scripts/patronum-*.sh` — all shell scripts (hook, setup, add, remove, list, verify, uninstall)
 - `defaults/patronum.json` — default protection patterns shipped with plugin
-- `skills/*/SKILL.md` — slash commands for end users
+- `skills/*/SKILL.md` — user-facing skills (per agentskills.io spec)
+- `.claude/skills/*/SKILL.md` — dev-only skills (installed with plugin, prefixed `patronum-dev-`)
+- `dev/skills/*/SKILL.md` — dev-only skills (NOT installed with plugin)
 - `docs/` — VitePress documentation site
 
 ### How It Works
@@ -57,7 +59,10 @@ cd docs && npm run build  # Build for production
 ## Dependencies
 
 - **bash** — all scripts
-- **jq** — JSON parsing and manipulation (no python3 dependency)
+- **jq** — JSON parsing and manipulation (REQUIRED, no python3 dependency)
+  - Install: `brew install jq` (macOS) or `apt install jq` (Linux)
+  - Check: `jq --version`
+  - Setup scripts fail fast if jq is missing
 
 ## Best Practices
 

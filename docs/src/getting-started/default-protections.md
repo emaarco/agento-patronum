@@ -49,3 +49,5 @@ agento-patronum ships with a curated set of protection patterns covering common 
 ## Need more?
 
 Use `/patronum-suggest` to get stack-specific recommendations, or add your own patterns with `/patronum-add`.
+
+Think a pattern should be included by default? [Open a feature request](https://github.com/emaarco/agento-patronum/issues/new?template=feature_request.yml) on GitHub.

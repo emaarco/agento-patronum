@@ -2,17 +2,22 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'agento-patronum',
+  appearance: false,
   titleTemplate: false,
   description: 'Protect sensitive files, credentials, and commands from unintended AI access in Claude Code',
   base: '/agento-patronum/',
+
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/agento-patronum/favicon.svg' }],
+  ],
 
   themeConfig: {
     logo: '/shield.svg',
 
     nav: [
       { text: 'Get Started', link: '/getting-started/installation' },
-      { text: 'Commands', link: '/commands/' },
-      { text: 'GitHub', link: 'https://github.com/emaarco/agento-patronum' },
+      { text: 'Skills', link: '/commands/' },
+      { text: 'How It Works', link: '/internals/how-it-works' },
     ],
 
     sidebar: [
@@ -32,7 +37,7 @@ export default defineConfig({
         ],
       },
       {
-        text: 'Slash Commands',
+        text: 'Skills',
         items: [
           { text: 'Overview', link: '/commands/' },
           { text: '/patronum-add', link: '/commands/add' },
@@ -45,8 +50,8 @@ export default defineConfig({
       {
         text: 'Internals',
         items: [
-          { text: 'Why Hooks', link: '/internals/why-hooks' },
           { text: 'How It Works', link: '/internals/how-it-works' },
+          { text: 'Why Hooks', link: '/internals/why-hooks' },
           { text: 'Log Format', link: '/internals/log-format' },
         ],
       },

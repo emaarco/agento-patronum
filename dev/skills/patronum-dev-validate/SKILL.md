@@ -1,11 +1,11 @@
 ---
-name: validate-plugin
+name: patronum-dev-validate
 description: "Validate the agento-patronum plugin structure. Run before opening a PR."
 disable-model-invocation: true
 allowed-tools: Bash(bash -n *), Bash(jq *), Bash(head *), Bash(test *), Glob, Read
 ---
 
-# Skill: validate-plugin
+# Skill: patronum-dev-validate
 
 Run all plugin validation checks locally.
 

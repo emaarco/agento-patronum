@@ -89,10 +89,10 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 <div class="flow-desc">check patronum.json</div>
 </div>
 <div class="flow-arrow">→</div>
-<div class="flow-outcomes">
-<div class="flow-outcome outcome-block">Block + Log</div>
-<div class="flow-outcome-or">or</div>
-<div class="flow-outcome outcome-allow">Allow</div>
+<div class="flow-step step-result">
+<div class="flow-icon">🚫</div>
+<div class="flow-label">Blocked</div>
+<div class="flow-desc">exit 2 + logged</div>
 </div>
 </div>
 
@@ -118,8 +118,9 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 </div>
 
 <div class="cta-buttons">
-<a href="/agento-patronum/getting-started/installation" class="cta-secondary">Installation details</a>
+<a href="/agento-patronum/getting-started/installation" class="cta-secondary">Installation</a>
 <a href="/agento-patronum/getting-started/default-protections" class="cta-secondary">See default protections</a>
+<a href="/agento-patronum/internals/how-it-works" class="cta-secondary">How it works</a>
 </div>
 </div>
 
@@ -190,18 +191,21 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 /* Flow section */
 .flow-steps {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 0.5rem;
   margin: 1.5rem 0 1rem;
-  flex-wrap: wrap;
   justify-content: flex-start;
 }
 
 .flow-step {
+  flex: 1;
+  min-width: 0;
   text-align: center;
   padding: 0.8rem 1rem;
   border-radius: 10px;
-  min-width: 130px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .step-purple {
@@ -244,35 +248,24 @@ agento-patronum intercepts every tool call **before execution**. If the target m
   font-size: 1.1rem;
   color: var(--vp-c-text-3);
   font-weight: 300;
-}
-
-.flow-outcomes {
+  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.25rem;
+  align-items: center;
 }
 
-.flow-outcome {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.7rem;
-  border-radius: 6px;
-}
-
-.flow-outcome-or {
-  font-size: 0.65rem;
-  color: var(--vp-c-text-3);
-}
-
-.outcome-block {
+.step-result {
   background: var(--vp-c-danger-soft);
+  border: 1px solid var(--vp-c-danger-1);
+  align-items: center;
+  justify-content: center;
+}
+
+.step-result .flow-label {
   color: var(--vp-c-danger-1);
 }
 
-.outcome-allow {
-  background: var(--vp-c-green-soft);
-  color: var(--vp-c-green-1);
+.step-result .flow-desc {
+  color: var(--vp-c-danger-2);
 }
 
 /* CTA section */
@@ -374,6 +367,7 @@ agento-patronum intercepts every tool call **before execution**. If the target m
     gap: 0.6rem;
   }
   .flow-step {
+    flex: auto;
     width: 100%;
   }
 }

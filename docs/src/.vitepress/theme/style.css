@@ -31,23 +31,9 @@
   --vp-button-brand-active-bg: #6d28d9;
 }
 
-/* ── Header / Hero background differentiation ── */
-.VPNav {
-  background: #f9f7fc !important;
-  border-bottom: 1px solid var(--vp-c-divider);
-}
-
-.dark .VPNav {
-  background: #1a1625 !important;
-}
-
 .VPHero {
   background: linear-gradient(180deg, #f9f7fc 0%, var(--vp-c-bg) 100%);
   padding-bottom: 2rem !important;
-}
-
-.dark .VPHero {
-  background: linear-gradient(180deg, #1a1625 0%, var(--vp-c-bg) 100%);
 }
 
 /* ── Narrower hero / features to match 900px content ── */

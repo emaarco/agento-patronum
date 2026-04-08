@@ -35,7 +35,7 @@ jobs:
       - run: npm run build
         working-directory: docs
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: docs/src/.vitepress/dist
 

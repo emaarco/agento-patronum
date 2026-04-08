@@ -22,11 +22,13 @@ jq empty defaults/patronum.json && echo "patronum.json OK"
 
 ### 1b. marketplace.json schema
 
-Verify the `source` field starts with `./` (required by Claude Code):
+Verify the `source` field starts with `./` and `metadata.description` is present (both required by Claude Code validation):
 
 ```bash
 jq -e '.plugins[] | (.source | type) == "string" and startswith("./")' \
   .claude-plugin/marketplace.json && echo "marketplace source OK"
+jq -e '.metadata.description | type == "string" and length > 0' \
+  .claude-plugin/marketplace.json && echo "marketplace description OK"
 ```
 
 ### 2. Default patterns check

@@ -30,7 +30,8 @@ print_config() {
 }
 
 if [ ! -f "$PATRONUM_USER_CONFIG" ] && \
-   { [ -z "${PATRONUM_PROJ_CONFIG:-}" ] || [ ! -f "$PATRONUM_PROJ_CONFIG" ]; }; then
+   { [ -z "${PATRONUM_PROJ_CONFIG:-}" ] || [ ! -f "$PATRONUM_PROJ_CONFIG" ]; } && \
+   { [ -z "${PATRONUM_LOCAL_REPO_CONFIG:-}" ] || [ ! -f "$PATRONUM_LOCAL_REPO_CONFIG" ]; }; then
   echo "Error: no config found. Run /patronum-verify to check setup." >&2
   exit 1
 fi
@@ -39,5 +40,10 @@ print_config "$PATRONUM_USER_CONFIG" "User config (always active)"
 
 if [ -n "${PATRONUM_PROJ_CONFIG:-}" ] && [ -f "$PATRONUM_PROJ_CONFIG" ]; then
   echo ""
-  print_config "$PATRONUM_PROJ_CONFIG" "Project config (merged on top)"
+  print_config "$PATRONUM_PROJ_CONFIG" "Project config (committed, merged on top)"
+fi
+
+if [ -n "${PATRONUM_LOCAL_REPO_CONFIG:-}" ] && [ -f "$PATRONUM_LOCAL_REPO_CONFIG" ]; then
+  echo ""
+  print_config "$PATRONUM_LOCAL_REPO_CONFIG" "Local repo config (gitignored, merged on top)"
 fi

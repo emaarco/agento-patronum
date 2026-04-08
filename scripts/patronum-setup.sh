@@ -31,22 +31,39 @@ if [ ! -f "$CONFIG_FILE" ]; then
   echo "agento-patronum: first-time setup complete. Default protections installed."
 fi
 
-# Detect project-scope install: .claude/settings.json in the git root lists agento-patronum
+# Detect project-scope or local-scope install and create the appropriate repo config
 _GIT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
-if [ -n "$_GIT_ROOT" ] && [ -f "$_GIT_ROOT/.claude/settings.json" ]; then
-  if jq -e '(.enabledPlugins // {}) | to_entries[] | select(.key | startswith("agento-patronum")) | .value' \
-      "$_GIT_ROOT/.claude/settings.json" 2>/dev/null | grep -q true; then
-    PROJ_PATRONUM_DIR="$_GIT_ROOT/.claude/patronum"
-    PROJ_CONFIG="$PROJ_PATRONUM_DIR/patronum.json"
-    mkdir -p "$PROJ_PATRONUM_DIR"
-    if [ ! -f "$PROJ_CONFIG" ]; then
-      cp "$DEFAULTS" "$PROJ_CONFIG"
+if [ -n "$_GIT_ROOT" ]; then
+  _PATRONUM_REPO_DIR="$_GIT_ROOT/.claude/patronum"
+
+  # Project scope: agento-patronum listed in committed .claude/settings.json
+  if [ -f "$_GIT_ROOT/.claude/settings.json" ] && \
+     jq -e '(.enabledPlugins // {}) | to_entries[] | select(.key | startswith("agento-patronum")) | .value' \
+         "$_GIT_ROOT/.claude/settings.json" 2>/dev/null | grep -q true; then
+    mkdir -p "$_PATRONUM_REPO_DIR"
+    if [ ! -f "$_PATRONUM_REPO_DIR/patronum.json" ]; then
+      cp "$DEFAULTS" "$_PATRONUM_REPO_DIR/patronum.json"
       echo "agento-patronum: project-scope install detected."
-      echo "agento-patronum: created $PROJ_CONFIG with default protections."
+      echo "agento-patronum: created $_PATRONUM_REPO_DIR/patronum.json with default protections."
       echo "agento-patronum: commit this file to share protection rules with your team."
       echo "agento-patronum: add .claude/patronum/patronum.log to your .gitignore."
     fi
   fi
+
+  # Local scope: agento-patronum listed in gitignored .claude/settings.local.json
+  if [ -f "$_GIT_ROOT/.claude/settings.local.json" ] && \
+     jq -e '(.enabledPlugins // {}) | to_entries[] | select(.key | startswith("agento-patronum")) | .value' \
+         "$_GIT_ROOT/.claude/settings.local.json" 2>/dev/null | grep -q true; then
+    mkdir -p "$_PATRONUM_REPO_DIR"
+    if [ ! -f "$_PATRONUM_REPO_DIR/patronum.local.json" ]; then
+      cp "$DEFAULTS" "$_PATRONUM_REPO_DIR/patronum.local.json"
+      echo "agento-patronum: local-scope install detected."
+      echo "agento-patronum: created $_PATRONUM_REPO_DIR/patronum.local.json with default protections."
+      echo "agento-patronum: this file is personal — add it to your .gitignore."
+    fi
+  fi
+
+  unset _PATRONUM_REPO_DIR
 fi
 unset _GIT_ROOT
 

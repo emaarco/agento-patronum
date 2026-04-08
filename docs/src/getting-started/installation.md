@@ -52,54 +52,50 @@ Claude Code doesn't have a `PostInstall` lifecycle event yet — that would be t
 
 ## Installation scopes
 
-| Scope | Hook registered in | Hook fires | Config location | Committed? |
-|-------|-------------------|-----------|-----------------|------------|
-| **user** *(default)* | `~/.claude/settings.json` | Every repo, every session | `~/.claude/patronum/patronum.json` | No |
-| **project** | `.claude/settings.json` | This repository (all contributors) | `.claude/patronum/patronum.json` | ✅ Yes |
-| **local** | `.claude/settings.local.json` | This repository (you only) | `~/.claude/patronum/patronum.json` | No |
+| Scope | Who gets it | Where it fires | Config file |
+|-------|------------|----------------|-------------|
+| **user** | You | Every repo on this machine | `~/.claude/patronum/patronum.json` |
+| **project** | Everyone (via committed `.claude/settings.json`) | This repo only | `.claude/patronum/patronum.json` ✅ committed |
+| **local** | You (via gitignored `.claude/settings.local.json`) | This repo only | `.claude/patronum/patronum.local.json` |
 
-The key distinction: **scope controls where the hook fires**, not which config file it reads. User and local scope both use `~/.claude/patronum/patronum.json` — the difference is that user scope fires in every repo you open, while local scope only fires in that one repository.
-
-**User scope** *(recommended default)*
-- ✅ Install once — protected in every repo on this machine
-- ✅ Global credentials (`~/.ssh/`, `~/.aws/`, `.env`) covered everywhere
-- ❌ No per-project rule customisation
+**User scope** — the hook is in `~/.claude/settings.json` and fires in every repo you open. Install once, protected everywhere.
+- ✅ No per-project setup required
 - ❌ Each team member installs separately
 
-**Project scope**
-- ✅ Hook committed to `.claude/settings.json` — every contributor gets it automatically
-- ✅ Team rules in `.claude/patronum/patronum.json` — version-controlled alongside your code
-- ✅ Auto-created on first `SessionStart` if missing
-- ✅ Both configs merged — user rules always apply, project rules add on top (see below)
-- ❌ Hook only fires in this repository — contributors should also install at user scope for their other projects
+**Project scope** — the hook is committed to `.claude/settings.json`. Every contributor who clones the repo gets the plugin automatically. The team's protection rules live in `.claude/patronum/patronum.json`, also committed.
+- ✅ New contributors are protected from day one
+- ✅ Shared ruleset, version-controlled
+- ✅ Personal user config is still merged on top — see [Config merging](#config-merging)
+- ❌ Contributors should also install at user scope for their other projects
 
-**Local scope**
-- ✅ Try the plugin in one repo without affecting all your other sessions
-- ✅ Per-project activation without telling teammates (hook stays out of committed files)
-- ❌ Hook only fires in this repository — other repos are unprotected
-- ❌ Not shared; each contributor installs separately
+**Local scope** — the hook is in `.claude/settings.local.json` (gitignored). Fires only in this repo, personal only, nothing committed. Rules go in `.claude/patronum/patronum.local.json` (also gitignored), keeping them separate from any committed team config.
+- ✅ Repo-scoped without affecting teammates or committed files
+- ✅ No conflict with a project-scope config in the same repo
+- ❌ Other repos are unprotected
 
-::: tip Project-scope config is auto-created
-When agento-patronum is installed at project scope, `patronum-setup.sh` detects this on the first `SessionStart` and creates `.claude/patronum/patronum.json` with the default protections. Commit it to share your team's protection rules.
+::: tip Repo configs are auto-created
+On the first `SessionStart` after install, `patronum-setup.sh` detects the scope and creates the right config file if it doesn't exist yet:
+- Project scope → `.claude/patronum/patronum.json` (commit this to share rules with your team)
+- Local scope → `.claude/patronum/patronum.local.json` (gitignored, personal only)
 
-Add the audit log to your `.gitignore`:
+Add these to your `.gitignore`:
 ```
+.claude/patronum/patronum.local.json
 .claude/patronum/patronum.log
 ```
 :::
 
 ### Config merging
 
-When a project-scope config exists alongside the user config, **both are active at the same time**. Rules are merged, not replaced:
+All present configs are loaded simultaneously — rules are merged, not replaced:
 
-| Config | Always loaded? | Purpose |
-|--------|---------------|---------|
-| `~/.claude/patronum/patronum.json` | ✅ Yes | Personal rules — `~/.ssh/`, `~/.aws/`, global patterns |
-| `.claude/patronum/patronum.json` | When present in git root | Team rules — project-specific files and commands |
+| Config file | Scope | Always loaded? |
+|-------------|-------|---------------|
+| `~/.claude/patronum/patronum.json` | user | ✅ Yes |
+| `.claude/patronum/patronum.json` | project | When committed to the repo |
+| `.claude/patronum/patronum.local.json` | local | When present (gitignored) |
 
-This means your personal credential protections can never be silently overridden by a project config. A contributor working in a project-scope repo gets both their own user rules and the team's project rules enforced simultaneously.
-
-`/patronum-list` shows each config separately so you can see exactly which rules are active.
+Your personal credential protections (`~/.ssh/`, `~/.aws/`) can never be overridden by a project config. `/patronum-list` shows each config separately.
 
 ::: info Which scope should I use?
 **Solo developer**: use **user scope** (the default). Install once, protected everywhere.

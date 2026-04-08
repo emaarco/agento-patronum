@@ -25,14 +25,8 @@ features:
     details: Two commands to install. Your custom rules survive plugin updates. Every blocked action is logged for audit. Pure bash + jq, no dependencies.
 ---
 
-::: info Early version
-agento-patronum is under active development (v0.1.0). Features and defaults may change between releases. Feedback is very welcome.
-:::
-
-<div class="version-chip">
-  <a href="https://github.com/emaarco/agento-patronum/releases" target="_blank">
-    <img alt="Version" src="https://img.shields.io/github/v/release/emaarco/agento-patronum?label=version&color=blueviolet&style=flat-square" />
-  </a>
+<div class="early-version-banner">
+  Early version — agento-patronum is under active development (v0.1.0). Features and defaults may change between releases. Feedback is very welcome.
 </div>
 
 <div class="landing-content">
@@ -382,9 +376,4 @@ agento-patronum intercepts every tool call **before execution**. If the target m
   }
 }
 
-.version-chip {
-  max-width: 900px;
-  margin: 0.75rem auto 0;
-  padding: 0 1.5rem;
-}
 </style>

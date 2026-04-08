@@ -48,3 +48,40 @@
 .VPHome .VPFeatures {
   padding-bottom: 0 !important;
 }
+
+/* ── Early version banner ── */
+.early-version-banner {
+  max-width: 900px;
+  margin: 1.25rem auto 0;
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  /* Match VitePress container side padding */
+  box-sizing: border-box;
+  width: calc(100% - 48px);
+}
+
+.dark .early-version-banner {
+  color: #fde68a;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* ── Navbar version pill ── */
+.VPNavBarMenu a.VPNavBarMenuLink[href$="/reference/changelog"] {
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.2rem 0.65rem;
+  border: 1.5px solid var(--vp-c-brand-1);
+  border-radius: 999px;
+  color: var(--vp-c-brand-1) !important;
+  line-height: 1.6;
+  transition: background 0.2s;
+}
+
+.VPNavBarMenu a.VPNavBarMenuLink[href$="/reference/changelog"]:hover {
+  background: var(--vp-c-brand-soft);
+}

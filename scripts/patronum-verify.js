@@ -76,7 +76,10 @@ for (const script of expectedScripts) {
     fs.existsSync(scriptPath) ? undefined : `not found at ${scriptPath}`);
 }
 
-const expectedLibs = ['patronum.js', 'enforce.js', 'runHook.js'];
+const expectedLibs = [
+  'config.js', 'matching.js', 'io.js', 'logging.js',
+  'enforce-file.js', 'enforce-bash.js', 'enforce-prompt.js',
+];
 for (const lib of expectedLibs) {
   const libPath = path.join(pluginRoot, 'scripts', 'lib', lib);
   checkInstall(`scripts/lib/${lib} present`,

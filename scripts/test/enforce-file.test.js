@@ -2,10 +2,9 @@
 
 const { describe, it } = require('node:test');
 const { strictEqual } = require('node:assert');
-const { enforceFile, enforceBash, enforcePrompt } = require('../lib/enforce');
+const { enforceFile } = require('../lib/enforce-file');
 
 const HOME = '/home/testuser';
-const CWD = '/project';
 
 const ENTRIES = [
   { pattern: '**/.env', reason: 'secrets' },
@@ -18,8 +17,6 @@ const ENTRIES = [
   { pattern: '~/.npmrc', reason: 'npm tokens' },
   { pattern: 'Bash(printenv)', reason: 'env dump' },
 ];
-
-// ── enforceFile ─────────────────────────────────────────────────────────────
 
 describe('enforceFile', () => {
   describe('Read tool', () => {
@@ -166,167 +163,5 @@ describe('enforceFile', () => {
       );
       strictEqual(r.blocked, false);
     });
-  });
-});
-
-// ── enforceBash ─────────────────────────────────────────────────────────────
-
-describe('enforceBash', () => {
-  it('blocks exact match', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'printenv' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, true);
-    strictEqual(r.pattern, 'Bash(printenv)');
-  });
-
-  it('blocks prefix match with arguments', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'printenv HOME' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, true);
-  });
-
-  it('allows safe command', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'ls -la' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows set with options', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'set -euo pipefail' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows env with variable assignment', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'env NODE_ENV=test npm run build' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('no false positive for protected filename in body text', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'gh issue create --body "see .env.local for details"' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows when no command', () => {
-    const r = enforceBash({ tool_input: {} }, ENTRIES);
-    strictEqual(r.blocked, false);
-  });
-
-  it('skips file patterns', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'cat .env' } },
-      [{ pattern: '**/.env' }],
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows with empty entries', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'printenv' } },
-      [],
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('does not match partial command name', () => {
-    const r = enforceBash(
-      { tool_input: { command: 'printenvs' } },
-      ENTRIES,
-    );
-    strictEqual(r.blocked, false);
-  });
-});
-
-// ── enforcePrompt ───────────────────────────────────────────────────────────
-
-describe('enforcePrompt', () => {
-  it('blocks @mention to .env.local', () => {
-    const r = enforcePrompt(
-      { prompt: 'whats in @stack/.env.local' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, true);
-    strictEqual(r.pattern, '**/.env.*');
-  });
-
-  it('blocks @mention to .env', () => {
-    const r = enforcePrompt(
-      { prompt: 'show me @project/.env' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, true);
-  });
-
-  it('blocks @mention to ~/.ssh/id_rsa', () => {
-    const r = enforcePrompt(
-      { prompt: 'read @~/.ssh/id_rsa' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, true);
-  });
-
-  it('allows @mention to safe file', () => {
-    const r = enforcePrompt(
-      { prompt: 'check @README.md' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows prompt with no @mentions', () => {
-    const r = enforcePrompt(
-      { prompt: 'what is 2+2' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows empty prompt', () => {
-    const r = enforcePrompt({ prompt: '' }, ENTRIES, HOME, CWD);
-    strictEqual(r.blocked, false);
-  });
-
-  it('allows when no prompt field', () => {
-    const r = enforcePrompt({}, ENTRIES, HOME, CWD);
-    strictEqual(r.blocked, false);
-  });
-
-  it('resolves relative paths against cwd', () => {
-    const r = enforcePrompt(
-      { prompt: 'check @.env' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, true);
-  });
-
-  it('resolves absolute @mention paths', () => {
-    const r = enforcePrompt(
-      { prompt: 'read @/etc/ssl/cert.pem' },
-      ENTRIES, HOME, CWD,
-    );
-    strictEqual(r.blocked, true);
-  });
-
-  it('skips Bash() patterns', () => {
-    const r = enforcePrompt(
-      { prompt: 'check @README.md' },
-      [{ pattern: 'Bash(printenv)' }],
-      HOME, CWD,
-    );
-    strictEqual(r.blocked, false);
   });
 });

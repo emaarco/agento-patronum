@@ -18,31 +18,7 @@ jobs:
           node-version: '20'
 
       - name: Validate JSON files
-        run: |
-          node -e "
-            const fs = require('fs');
-            for (const f of [
-              '.claude-plugin/plugin.json',
-              'hooks/hooks.json',
-              'defaults/patronum.json'
-            ]) {
-              JSON.parse(fs.readFileSync(f, 'utf8'));
-              console.log(f + ': valid');
-            }
-            console.log('All JSON files valid');
-          "
-
-      - name: Check default patterns
-        run: |
-          COUNT=$(node -e "const d = JSON.parse(require('fs').readFileSync('defaults/patronum.json','utf8')); console.log(d.entries.length)")
-          echo "Default patterns: $COUNT"
-          [ "$COUNT" -gt 0 ] || (echo "No default patterns found" && exit 1)
-
-      - name: Validate JS scripts
-        run: |
-          for f in scripts/patronum-*.js; do
-            node -e "new (require('vm').Script)(require('fs').readFileSync('$f','utf8'))" && echo "$f: syntax OK"
-          done
+        run: node scripts/validate-json.js
 
       - name: Validate SKILL.md frontmatter
         run: |

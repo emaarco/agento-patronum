@@ -16,23 +16,28 @@ Install via Claude Code marketplace:
 
 ### Plugin Structure
 - `.claude-plugin/plugin.json` — marketplace manifest
-- `hooks/hooks.json` — registers SessionStart + PreToolUse hooks
-- `scripts/patronum-*.js` — all Node.js scripts (hook, setup, add, remove, list, verify, uninstall)
-- `scripts/lib/patronum.js` — shared library (config resolution, glob matching, utilities)
-- `scripts/lib/enforce.js` — pure enforcement functions (enforceFile, enforceBash, enforcePrompt)
-- `scripts/lib/runHook.js` — shared hook wrapper (config loading, validation, exit logic)
-- `scripts/test/*.test.js` — unit tests (node:test)
+- `hooks/hooks.json` — registers SessionStart + PreToolUse + UserPromptSubmit hooks
+- `scripts/patronum-*-hook.js` — self-contained hook scripts (file, bash, prompt)
+- `scripts/patronum-*.js` — CLI scripts (setup, add, remove, list, verify, uninstall, install-check)
+- `scripts/lib/config.js` — config resolution and loading
+- `scripts/lib/matching.js` — glob pattern matching
+- `scripts/lib/io.js` — stdin reading utilities
+- `scripts/lib/logging.js` — violation logging
+- `scripts/lib/enforce-file.js` — file enforcement (Read/Write/Edit/MultiEdit)
+- `scripts/lib/enforce-bash.js` — bash command enforcement
+- `scripts/lib/enforce-prompt.js` — prompt @mention enforcement
+- `scripts/test/*.test.js` — unit tests (node:test), one per source file
+- `scripts/validate-json.js` — JSON validation script (used in CI)
 - `defaults/patronum.json` — default protection patterns shipped with plugin
 - `skills/*/SKILL.md` — user-facing skills (per agentskills.io spec)
 - `.claude/skills/*/SKILL.md` — dev-only skills (installed with plugin, prefixed `patronum-dev-`)
-- `dev/skills/*/SKILL.md` — dev-only skills (NOT installed with plugin)
 - `docs/` — VitePress documentation site
 
 ### How It Works
-1. On install, `hooks.json` registers a SessionStart hook and a PreToolUse hook
+1. On install, `hooks.json` registers a SessionStart hook, UserPromptSubmit hooks, and PreToolUse hooks
 2. SessionStart runs `patronum-setup.js` which copies default patterns to `~/.claude/patronum/patronum.json`
-3. Every Read/Write/Edit/Bash call goes through a thin hook wrapper (`runHook.js`) that calls a pure enforce function (`enforce.js`)
-4. The enforce function checks the file path or command against patterns in the config
+3. Each hook script is self-contained: it loads config, parses stdin, calls its enforce function, and handles the violation/exit logic inline
+4. The enforce function checks the file path, command, or @mention against patterns in the config
 5. If a pattern matches, the hook exits with code 2 (blocks the tool) and logs to `~/.claude/patronum/patronum.log`
 
 ### Key Files
@@ -51,7 +56,7 @@ CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-setup.js
 CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
 
 # Validate all JSON
-node -e "['.claude-plugin/plugin.json','hooks/hooks.json','defaults/patronum.json'].forEach(f=>JSON.parse(require('fs').readFileSync(f,'utf8')))"
+node scripts/validate-json.js
 ```
 
 ### Documentation

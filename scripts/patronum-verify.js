@@ -99,6 +99,7 @@ if (!fs.existsSync(patronumDir)) {
     JSON.parse(fs.readFileSync(configFile, 'utf8'));
     checkInstall('~/.claude/patronum/patronum.json valid JSON', 'pass');
   } catch {
+    console.debug('patronum: could not parse config for validation');
     checkInstall('~/.claude/patronum/patronum.json valid JSON', 'fail', 'file is malformed — delete it and re-run setup');
   }
 }
@@ -187,6 +188,7 @@ let skipNoConfig = false;
 try {
   fs.renameSync(configFile, tempAbsent);
 } catch {
+  console.debug('patronum: could not rename config for fail-open test');
   skipNoConfig = true;
 }
 if (!skipNoConfig && !fs.existsSync(configFile)) {

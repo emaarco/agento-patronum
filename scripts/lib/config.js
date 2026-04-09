@@ -32,7 +32,7 @@ function resolveConfig() {
   if (!projectRoot) {
     try {
       projectRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-    } catch { /* not in a git repo */ }
+    } catch { console.debug('patronum: not in a git repo, skipping project config'); }
   }
 
   if (projectRoot) {
@@ -60,6 +60,7 @@ function validateConfig(configPath) {
     JSON.parse(fs.readFileSync(configPath, 'utf8'));
     return true;
   } catch {
+    console.debug('patronum: config validation failed for', configPath);
     return false;
   }
 }
@@ -69,6 +70,7 @@ function loadEntries(configPath) {
     const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     return data.entries || [];
   } catch {
+    console.debug('patronum: could not load entries from', configPath);
     return [];
   }
 }

@@ -55,7 +55,7 @@ function enforcePrompt(input, entries, home, cwd) {
 
 if (require.main === module) {
   if (!process.env.HOME) {
-    process.stderr.write('PATRONUM: HOME is unset — blocking as safe default\n');
+    process.stderr.write('PATRONUM: Cannot locate config directory — blocking all operations.\n');
     process.exit(2);
   }
 

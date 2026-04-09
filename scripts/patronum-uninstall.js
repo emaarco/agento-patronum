@@ -25,7 +25,7 @@ if (fs.existsSync(patronumDir)) {
     try {
       const data = JSON.parse(fs.readFileSync(configFile, 'utf8'));
       count = (data.entries || []).length;
-    } catch { /* ignore */ }
+    } catch { console.debug('patronum: could not read config for pattern count'); }
   }
   fs.rmSync(patronumDir, { recursive: true, force: true });
   console.log(`agento-patronum: removed ${patronumDir} (${count} patterns in user config)`);
@@ -38,7 +38,7 @@ if (fs.existsSync(patronumDir)) {
 let gitRoot = '';
 try {
   gitRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-} catch { /* not in a git repo */ }
+} catch { console.debug('patronum: not in a git repo, skipping repo-scope cleanup'); }
 
 if (gitRoot) {
   const repoPatronum = path.join(gitRoot, '.claude', 'patronum');

@@ -58,7 +58,7 @@ function enforceFile(input, entries, home) {
 
 if (require.main === module) {
   if (!process.env.HOME) {
-    process.stderr.write('PATRONUM: HOME is unset — blocking as safe default\n');
+    process.stderr.write('PATRONUM: Cannot locate config directory — blocking all operations.\n');
     process.exit(2);
   }
 
@@ -70,7 +70,7 @@ if (require.main === module) {
 
   for (const cfg of activeConfigs) {
     if (!validateConfig(cfg)) {
-      process.stderr.write(`PATRONUM: config file '${cfg}' is invalid JSON — blocking as safe default\n`);
+      process.stderr.write(`PATRONUM: Config '${cfg}' contains invalid JSON — blocking all operations until fixed.\n`);
       process.exit(2);
     }
   }

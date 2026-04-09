@@ -15,7 +15,7 @@ function logViolation(logFile, { tool, target, pattern }) {
   });
   try {
     fs.appendFileSync(logFile, entry + '\n');
-  } catch { /* best effort */ }
+  } catch { console.debug('patronum: could not write to log file', logFile); }
 }
 
 module.exports = { logViolation };

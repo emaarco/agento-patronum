@@ -33,7 +33,7 @@ if (!fs.existsSync(configFile)) {
 let gitRoot = '';
 try {
   gitRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-} catch { /* not in a git repo */ }
+} catch { console.debug('patronum: not in a git repo, skipping repo-scope setup'); }
 
 if (gitRoot) {
   const repoDir = path.join(gitRoot, '.claude', 'patronum');
@@ -56,7 +56,7 @@ if (gitRoot) {
           console.log('agento-patronum: add .claude/patronum/patronum.log to your .gitignore.');
         }
       }
-    } catch { /* malformed settings.json — skip */ }
+    } catch { console.debug('patronum: could not parse .claude/settings.json'); }
   }
 
   // Local scope: agento-patronum listed in gitignored .claude/settings.local.json
@@ -76,7 +76,7 @@ if (gitRoot) {
           console.log('agento-patronum: this file is personal — add it to your .gitignore.');
         }
       }
-    } catch { /* malformed settings.local.json — skip */ }
+    } catch { console.debug('patronum: could not parse .claude/settings.local.json'); }
   }
 }
 
@@ -86,5 +86,6 @@ try {
   const count = (data.entries || []).length;
   console.log(`agento-patronum: protection active. ${count} patterns loaded.`);
 } catch {
+  console.debug('patronum: could not read config for status report');
   console.log('agento-patronum: protection active.');
 }

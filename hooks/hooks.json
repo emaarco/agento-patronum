@@ -2,7 +2,6 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
@@ -13,7 +12,6 @@
     ],
     "UserPromptSubmit": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
@@ -22,7 +20,6 @@
         ]
       },
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",

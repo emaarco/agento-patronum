@@ -17,7 +17,8 @@ Install via Claude Code marketplace:
 ### Plugin Structure
 - `.claude-plugin/plugin.json` — marketplace manifest
 - `hooks/hooks.json` — registers SessionStart + PreToolUse hooks
-- `scripts/patronum-*.sh` — all shell scripts (hook, setup, add, remove, list, verify, uninstall)
+- `scripts/patronum-*.js` — all Node.js scripts (hook, setup, add, remove, list, verify, uninstall)
+- `scripts/lib/patronum.js` — shared library (config resolution, glob matching, utilities)
 - `defaults/patronum.json` — default protection patterns shipped with plugin
 - `skills/*/SKILL.md` — user-facing skills (per agentskills.io spec)
 - `.claude/skills/*/SKILL.md` — dev-only skills (installed with plugin, prefixed `patronum-dev-`)
@@ -39,14 +40,11 @@ Install via Claude Code marketplace:
 
 ### Validate
 ```bash
-# Check all scripts compile
-bash -n scripts/patronum-*.sh
-
 # Validate all JSON
-jq empty .claude-plugin/plugin.json hooks/hooks.json defaults/patronum.json
+node -e "['.claude-plugin/plugin.json','hooks/hooks.json','defaults/patronum.json'].forEach(f=>JSON.parse(require('fs').readFileSync(f,'utf8')))"
 
 # Run self-test
-CLAUDE_PLUGIN_ROOT="$(pwd)" bash scripts/patronum-verify.sh
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
 ```
 
 ### Documentation
@@ -58,16 +56,12 @@ cd docs && npm run build  # Build for production
 
 ## Dependencies
 
-- **bash** — all scripts
-- **jq** — JSON parsing and manipulation (REQUIRED, no python3 dependency)
-  - Install: `brew install jq` (macOS) or `apt install jq` (Linux)
-  - Check: `jq --version`
-  - Setup scripts fail fast if jq is missing
+- **Node.js** — JSON parsing and all script logic (guaranteed by Claude Code runtime)
 
 ## Best Practices
 
 ### Verify After Each Change
-After modifying any script, run `bash -n` and `patronum-verify.sh` to confirm syntax and behavior.
+After modifying any script, run `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js` to confirm behavior.
 
 ### Script Naming
 All scripts are prefixed with `patronum-` to avoid name collisions with other plugins.

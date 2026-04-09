@@ -10,14 +10,11 @@ Clone the repo and run the self-test to confirm everything works:
 git clone https://github.com/emaarco/agento-patronum.git
 cd agento-patronum
 
-# Syntax-check all scripts
-bash -n scripts/patronum-*.sh
-
 # Validate all JSON files
-jq empty .claude-plugin/plugin.json .claude-plugin/marketplace.json hooks/hooks.json defaults/patronum.json
+node -e "for(const f of ['plugin.json','marketplace.json','hooks.json','defaults/patronum.json']){JSON.parse(require('fs').readFileSync(f.includes('/')?f:'.claude-plugin/'+f,'utf8'))}" && echo "All JSON valid"
 
 # Run the full enforcement self-test
-CLAUDE_PLUGIN_ROOT="$(pwd)" bash scripts/patronum-verify.sh
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
 ```
 
 ## Testing the Plugin Install Flow Locally
@@ -55,5 +52,5 @@ npm run build  # production build
 ## Submitting Changes
 
 1. Fork the repo and create a branch from `main`
-2. Run validation (`bash -n`, `jq empty`, `patronum-verify.sh`) before pushing
+2. Run validation (JSON check, `patronum-verify.js`) before pushing
 3. Open a pull request — `@emaarco` is auto-assigned via CODEOWNERS

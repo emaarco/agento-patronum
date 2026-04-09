@@ -19,6 +19,8 @@ Each blocked call is logged as a single JSON object:
 
 ## Viewing logs
 
+> These examples use `jq` (optional) for JSON formatting. Any JSONL-aware tool works.
+
 Use standard Unix tools to inspect the log:
 
 ```bash

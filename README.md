@@ -31,26 +31,6 @@ Built-in `settings.json` deny rules may or may not be reliable; [past reports su
 
 Restart Claude Code once. Done. Run `/patronum-verify` to confirm.
 
-## 📋 Prerequisites
-
-agento-patronum requires **jq** for JSON processing. Install it:
-
-```bash
-# macOS
-brew install jq
-
-# Linux (Debian/Ubuntu)
-apt install jq
-
-# Linux (RHEL/CentOS)
-yum install jq
-
-# WSL / Windows
-apt install jq
-```
-
-The setup script will fail with a clear error if jq is missing. No other dependencies.
-
 ## 🧰 Available skills
 
 agento-patronum is built with [skills](https://agentskills.io) — the open specification for agent capabilities. Invoke them as slash commands in Claude Code:
@@ -84,7 +64,7 @@ Need more? Run `/patronum-suggest` — it analyzes your stack and recommends wha
 
 agento-patronum registers a `PreToolUse` hook that intercepts every `Read`, `Write`, `Edit`, and `Bash` tool call. It checks the file path or command against patterns in `~/.claude/patronum.json`. If a pattern matches, the tool call is blocked and logged.
 
-No cloud, no binary, no Python. Pure bash + jq.
+No cloud, no binary, no external dependencies. Pure Node.js — guaranteed by Claude Code.
 
 ## 📖 Story behind the plugin
 

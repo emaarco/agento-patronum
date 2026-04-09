@@ -2,7 +2,7 @@
 name: patronum-dev-setup
 description: "Set up the agento-patronum development environment. Check prerequisites, install docs dependencies, validate plugin structure."
 disable-model-invocation: true
-allowed-tools: Bash(which *), Bash(bash -n *), Bash(jq *), Bash(cd * && npm *), Bash(npm *)
+allowed-tools: Bash(which *), Bash(node *), Bash(cd * && npm *), Bash(npm *)
 ---
 
 # Skill: patronum-dev-setup
@@ -16,24 +16,9 @@ Set up the local development environment for agento-patronum.
 Verify the following tools are available:
 
 ```bash
-which bash    # Required: shell scripts
-which jq      # Required: JSON processing (CRITICAL)
-which node    # Required: VitePress docs
+which bash    # Required: shell runtime
+which node    # Required: plugin scripts + VitePress docs
 which npm     # Required: VitePress docs
-```
-
-**jq is critical** — without it, the hook cannot function. If missing, provide install instructions:
-
-```bash
-# macOS
-brew install jq
-
-# Linux
-apt install jq  # Debian/Ubuntu
-yum install jq  # RHEL/CentOS
-
-# WSL
-apt install jq
 ```
 
 If any tool is missing, tell the user how to install it and do not proceed.
@@ -50,20 +35,20 @@ Run all validation checks:
 
 ```bash
 # JSON validity
-jq empty .claude-plugin/plugin.json
-jq empty hooks/hooks.json
-jq empty defaults/patronum.json
+node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8'))" && echo "plugin.json OK"
+node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))" && echo "hooks.json OK"
+node -e "JSON.parse(require('fs').readFileSync('defaults/patronum.json','utf8'))" && echo "patronum.json OK"
 
-# Bash syntax
-for f in scripts/patronum-*.sh; do
-  bash -n "$f" && echo "$f OK"
+# Script syntax
+for f in scripts/patronum-*.js; do
+  node -c "$f" && echo "$f OK"
 done
 ```
 
 ### 4. Run self-test
 
 ```bash
-CLAUDE_PLUGIN_ROOT="$(pwd)" bash scripts/patronum-verify.sh
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
 ```
 
 ### 5. Report

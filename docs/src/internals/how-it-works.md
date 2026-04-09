@@ -97,4 +97,4 @@ It extracts every `@<path>` token, resolves each to an absolute path, and checks
 
 ## Dependencies
 
-All hooks use only `bash` and `jq` — no language runtimes, no npm packages, no dependencies beyond what's listed in [Prerequisites](/getting-started/installation#prerequisites).
+All hooks use only Node.js — no native dependencies, no npm packages. Node.js is already available wherever Claude Code runs.

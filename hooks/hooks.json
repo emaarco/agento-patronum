@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-setup.sh\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-setup.js\""
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-install-check.sh\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-install-check.js\""
           }
         ]
       },
@@ -23,7 +23,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-prompt-hook.sh\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-prompt-hook.js\""
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-file-hook.sh\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-file-hook.js\""
           }
         ]
       },
@@ -43,7 +43,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-bash-hook.sh\""
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-bash-hook.js\""
           }
         ]
       }

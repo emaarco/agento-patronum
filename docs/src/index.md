@@ -22,7 +22,7 @@ features:
     details: Detects your tech stack and suggests what to protect. AWS, Terraform, Docker, GCP — it knows the sensitive files before you do.
   - icon: "\uD83D\uDCE6"
     title: Install Once, Always Protected
-    details: Two commands to install. Your custom rules survive plugin updates. Every blocked action is logged for audit. Pure bash + jq, no dependencies.
+    details: Two commands to install. Your custom rules survive plugin updates. Every blocked action is logged for audit. Pure Node.js, no external dependencies.
 ---
 
 <div class="early-version-banner">

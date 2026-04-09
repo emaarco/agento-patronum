@@ -5,18 +5,54 @@
 set -euo pipefail
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
-HOOK_SCRIPT="$PLUGIN_ROOT/scripts/patronum-hook.sh"
+FILE_HOOK="$PLUGIN_ROOT/scripts/patronum-file-hook.sh"
+BASH_HOOK="$PLUGIN_ROOT/scripts/patronum-bash-hook.sh"
+PROMPT_HOOK="$PLUGIN_ROOT/scripts/patronum-prompt-hook.sh"
 CONFIG_FILE="$HOME/.claude/patronum/patronum.json"
 PASS=0
 FAIL=0
 
-run_test() {
+run_file_test() {
   local DESCRIPTION="$1"
   local INPUT="$2"
   local EXPECTED_EXIT="$3"
 
   ACTUAL_EXIT=0
-  echo "$INPUT" | bash "$HOOK_SCRIPT" > /dev/null 2>&1 || ACTUAL_EXIT=$?
+  echo "$INPUT" | bash "$FILE_HOOK" > /dev/null 2>&1 || ACTUAL_EXIT=$?
+
+  if [ "$ACTUAL_EXIT" -eq "$EXPECTED_EXIT" ]; then
+    echo "  PASS: $DESCRIPTION (exit $ACTUAL_EXIT)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: $DESCRIPTION (expected exit $EXPECTED_EXIT, got $ACTUAL_EXIT)"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+run_bash_test() {
+  local DESCRIPTION="$1"
+  local INPUT="$2"
+  local EXPECTED_EXIT="$3"
+
+  ACTUAL_EXIT=0
+  echo "$INPUT" | bash "$BASH_HOOK" > /dev/null 2>&1 || ACTUAL_EXIT=$?
+
+  if [ "$ACTUAL_EXIT" -eq "$EXPECTED_EXIT" ]; then
+    echo "  PASS: $DESCRIPTION (exit $ACTUAL_EXIT)"
+    PASS=$((PASS + 1))
+  else
+    echo "  FAIL: $DESCRIPTION (expected exit $EXPECTED_EXIT, got $ACTUAL_EXIT)"
+    FAIL=$((FAIL + 1))
+  fi
+}
+
+run_prompt_test() {
+  local DESCRIPTION="$1"
+  local PROMPT_TEXT="$2"
+  local EXPECTED_EXIT="$3"
+
+  ACTUAL_EXIT=0
+  printf '{"prompt":"%s"}' "$PROMPT_TEXT" | bash "$PROMPT_HOOK" > /dev/null 2>&1 || ACTUAL_EXIT=$?
 
   if [ "$ACTUAL_EXIT" -eq "$EXPECTED_EXIT" ]; then
     echo "  PASS: $DESCRIPTION (exit $ACTUAL_EXIT)"
@@ -61,7 +97,7 @@ else
 fi
 
 # Check all expected scripts exist
-for SCRIPT in patronum-hook.sh patronum-setup.sh patronum-add.sh patronum-remove.sh patronum-list.sh patronum-verify.sh patronum-uninstall.sh patronum-config-resolver.sh; do
+for SCRIPT in patronum-file-hook.sh patronum-bash-hook.sh patronum-prompt-hook.sh patronum-setup.sh patronum-add.sh patronum-remove.sh patronum-list.sh patronum-verify.sh patronum-uninstall.sh patronum-config-resolver.sh; do
   if [ -f "$PLUGIN_ROOT/scripts/$SCRIPT" ]; then
     check_install "scripts/$SCRIPT present" pass
   else
@@ -96,89 +132,137 @@ fi
 
 echo ""
 
-# ── Enforcement Tests ─────────────────────────────────────────────────────────
-echo "── Enforcement Tests ────────────────────────────────────────────────────────"
+# ── File Hook Tests ───────────────────────────────────────────────────────────
+echo "── File Hook Tests (patronum-file-hook.sh) ─────────────────────────────────"
 echo ""
 echo "Config: $CONFIG_FILE"
-echo "Hook:   $HOOK_SCRIPT"
+echo "Hook:   $FILE_HOOK"
 echo ""
 
-# Test 1: Should block reading SSH key
-run_test "Block Read ~/.ssh/id_rsa" \
+# Should block reading SSH key
+run_file_test "Block Read ~/.ssh/id_rsa" \
   '{"tool_name":"Read","tool_input":{"file_path":"'"$HOME"'/.ssh/id_rsa"}}' \
   2
 
-# Test 2: Should block reading .env file
-run_test "Block Read .env" \
+# Should block reading .env file
+run_file_test "Block Read .env" \
   '{"tool_name":"Read","tool_input":{"file_path":"/project/.env"}}' \
   2
 
-# Test 3: Should block AWS credentials
-run_test "Block Read ~/.aws/credentials" \
+# Should block AWS credentials
+run_file_test "Block Read ~/.aws/credentials" \
   '{"tool_name":"Read","tool_input":{"file_path":"'"$HOME"'/.aws/credentials"}}' \
   2
 
-# Test 4: Should block printenv command
-run_test "Block Bash(printenv)" \
-  '{"tool_name":"Bash","tool_input":{"command":"printenv"}}' \
-  2
-
-# Test 5: Should allow safe file
-run_test "Allow Read /tmp/safe.txt" \
+# Should allow safe file
+run_file_test "Allow Read /tmp/safe.txt" \
   '{"tool_name":"Read","tool_input":{"file_path":"/tmp/safe.txt"}}' \
   0
 
-# Test 6: Should allow safe command
-run_test "Allow Bash(ls -la)" \
-  '{"tool_name":"Bash","tool_input":{"command":"ls -la"}}' \
-  0
-
-# Test 7: Should block .pem files
-run_test "Block Read server.pem" \
+# Should block .pem files
+run_file_test "Block Read server.pem" \
   '{"tool_name":"Read","tool_input":{"file_path":"/etc/ssl/server.pem"}}' \
   2
 
-# Test 8: Should block Write to .env
-run_test "Block Write .env.local" \
+# Should block Write to .env.local
+run_file_test "Block Write .env.local" \
   '{"tool_name":"Write","tool_input":{"file_path":"/project/.env.local"}}' \
   2
 
-# Test 9: Should block Edit on .env (same protection as Read/Write)
-run_test "Block Edit .env" \
+# Should block Edit on .env
+run_file_test "Block Edit .env" \
   '{"tool_name":"Edit","tool_input":{"file_path":"/project/.env"}}' \
   2
 
-# Test 10: Should block MultiEdit touching a protected file
-run_test "Block MultiEdit .env" \
+# Should block MultiEdit touching a protected file
+run_file_test "Block MultiEdit .env" \
   '{"tool_name":"MultiEdit","tool_input":{"edits":[{"file_path":"/project/.env","old_string":"x","new_string":"y"}]}}' \
   2
 
-# Test 11: Should allow MultiEdit on a safe file
-run_test "Allow MultiEdit safe file" \
+# Should allow MultiEdit on a safe file
+run_file_test "Allow MultiEdit safe file" \
   '{"tool_name":"MultiEdit","tool_input":{"edits":[{"file_path":"/tmp/safe.txt","old_string":"x","new_string":"y"}]}}' \
   0
 
-# Test 12: Should allow set with options (not a bare variable dump)
-run_test "Allow Bash(set -e)" \
-  '{"tool_name":"Bash","tool_input":{"command":"set -euo pipefail"}}' \
-  0
-
-# Test 13: Should allow env with variable assignment (not a dump)
-run_test "Allow Bash(env NODE_ENV=test npm run build)" \
-  '{"tool_name":"Bash","tool_input":{"command":"env NODE_ENV=test npm run build"}}' \
-  0
-
-# Test 14: No-config guard — with a nonexistent config, hook should allow (fail-open)
+# No-config guard — with a nonexistent config, hook should allow (fail-open)
 TEMP_ABSENT="$CONFIG_FILE.verify-absent"
 mv "$CONFIG_FILE" "$TEMP_ABSENT" 2>/dev/null || true
 if [ ! -f "$CONFIG_FILE" ]; then
-  run_test "No-config: allow all (fail-open)" \
+  run_file_test "No-config: allow all (fail-open)" \
     '{"tool_name":"Read","tool_input":{"file_path":"'"$HOME"'/.ssh/id_rsa"}}' \
     0
   mv "$TEMP_ABSENT" "$CONFIG_FILE"
 else
   echo "  SKIP: could not temporarily remove config for no-config test"
 fi
+
+echo ""
+
+# ── Bash Hook Tests ───────────────────────────────────────────────────────────
+echo "── Bash Hook Tests (patronum-bash-hook.sh) ─────────────────────────────────"
+echo ""
+echo "Config: $CONFIG_FILE"
+echo "Hook:   $BASH_HOOK"
+echo ""
+
+# Should block printenv command
+run_bash_test "Block Bash(printenv)" \
+  '{"tool_input":{"command":"printenv"}}' \
+  2
+
+# Should allow safe command
+run_bash_test "Allow Bash(ls -la)" \
+  '{"tool_input":{"command":"ls -la"}}' \
+  0
+
+# Should allow set with options (not a bare variable dump)
+run_bash_test "Allow Bash(set -euo pipefail)" \
+  '{"tool_input":{"command":"set -euo pipefail"}}' \
+  0
+
+# Should allow env with variable assignment (not a dump)
+run_bash_test "Allow Bash(env NODE_ENV=test npm run build)" \
+  '{"tool_input":{"command":"env NODE_ENV=test npm run build"}}' \
+  0
+
+# Regression: Bash command mentioning a protected filename in its text should NOT be blocked
+run_bash_test "No false-positive: .env.local in Bash body text" \
+  '{"tool_input":{"command":"gh issue create --body \"see .env.local for details\""}}' \
+  0
+
+echo ""
+
+# ── Prompt Hook Tests ─────────────────────────────────────────────────────────
+echo "── Prompt Hook Tests (patronum-prompt-hook.sh) ──────────────────────────────"
+echo ""
+echo "Config: $CONFIG_FILE"
+echo "Hook:   $PROMPT_HOOK"
+echo ""
+
+# Should block @mention to .env.local
+run_prompt_test "Block @mention to .env.local" \
+  "whats in @stack/.env.local" \
+  2
+
+# Should block @mention to .env
+run_prompt_test "Block @mention to .env" \
+  "show me @project/.env" \
+  2
+
+# Should block @mention to SSH key
+run_prompt_test "Block @mention to ~/.ssh/id_rsa" \
+  "read @~/.ssh/id_rsa" \
+  2
+
+# Should allow @mention to safe file
+run_prompt_test "Allow @mention to README.md" \
+  "check @README.md" \
+  0
+
+# Should allow prompt with no @mentions
+run_prompt_test "Allow prompt with no @mentions" \
+  "what is 2+2" \
+  0
 
 echo ""
 echo "Results: $PASS passed, $FAIL failed"

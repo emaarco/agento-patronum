@@ -25,6 +25,7 @@ export default defineConfig({
         text: 'Getting Started',
         items: [
           { text: 'Installation', link: '/getting-started/installation' },
+          { text: 'Managing', link: '/getting-started/managing' },
           { text: 'Default Protections', link: '/getting-started/default-protections' },
         ],
       },

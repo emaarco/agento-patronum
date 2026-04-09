@@ -100,18 +100,8 @@ After restarting Claude Code, run:
 /patronum-verify
 ```
 
-This runs a self-test that confirms the hook is blocking protected files and allowing safe ones.
+This runs a self-test that confirms the hook is blocking protected files and allowing safe ones. You can also open `/plugin` → **Installed** tab for a quick visual check.
 
 ## Uninstall
 
-```bash
-/plugin uninstall agento-patronum@emaarco
-```
-
-Your `~/.claude/patronum/` config directory is preserved — your custom patterns won't be lost if you reinstall later.
-
-To fully remove all agento-patronum data (config and audit log):
-
-```bash
-bash ~/.claude/plugins/agento-patronum/scripts/patronum-uninstall.sh
-```
+See [Managing agento-patronum](/getting-started/managing) for scope-specific uninstall, suspend/resume, and full data removal.

@@ -18,7 +18,6 @@ export default defineConfig({
       { text: 'Get Started', link: '/getting-started/installation' },
       { text: 'Skills', link: '/commands/' },
       { text: 'How It Works', link: '/internals/how-it-works' },
-      { text: 'v0.1.0', link: '/reference/changelog' },
     ],
 
     sidebar: [

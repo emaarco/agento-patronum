@@ -3,7 +3,7 @@ layout: home
 
 hero:
   name: agento-patronum
-  text: Your files. Protected.
+  text: Your secrets. Protected.
   tagline: AI coding agents read everything. Your Patronum decides what's off-limits.
   actions:
     - theme: brand
@@ -41,6 +41,9 @@ features:
 <div class="problem-text">
 
 AI coding agents are transforming how we build software. By default, they have access to everything in your project — `.env` files, SSH keys, AWS credentials, and API tokens. Not maliciously, just helpfully.
+
+Most developers using AI agents today either aren't aware of this exposure — or are, and simply haven't tackled it yet.
+If you haven't explicitly restricted what your agent can read, your credentials are likely in scope.
 
 Most tools offer some access controls. Whether those reliably work in all cases is hard to know — [past reports](https://github.com/anthropics/claude-code/issues/6699) suggest there can be gaps. Rather than relying on built-in rules and hoping for the best, agento-patronum gives you explicit, hook-based control you can verify yourself.
 
@@ -107,7 +110,7 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 </div>
 
 <div class="cta-section">
-<h2 class="cta-heading">Ready to protect your files?</h2>
+<h2 class="cta-heading">Ready to protect your secrets?</h2>
 <p class="cta-desc">Install agento-patronum in two commands — hook active, credentials shielded.</p>
 
 <div class="cta-install">

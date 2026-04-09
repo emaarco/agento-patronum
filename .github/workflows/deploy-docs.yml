@@ -1,6 +1,12 @@
 name: Deploy Docs
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+    tags:
+      - 'v*'
   release:
     types: [published]
   workflow_dispatch:

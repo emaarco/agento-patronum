@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const { strictEqual } = require('node:assert');
-const { enforceBash } = require('../lib/enforce-bash');
+const { enforceBash } = require('../patronum-bash-hook');
 
 const ENTRIES = [
   { pattern: '**/.env', reason: 'secrets' },

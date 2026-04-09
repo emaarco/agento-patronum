@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const { strictEqual } = require('node:assert');
-const { enforcePrompt } = require('../lib/enforce-prompt');
+const { enforcePrompt } = require('../patronum-prompt-hook');
 
 const HOME = '/home/testuser';
 const CWD = '/project';

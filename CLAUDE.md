@@ -23,9 +23,6 @@ Install via Claude Code marketplace:
 - `scripts/lib/matching.js` — glob pattern matching
 - `scripts/lib/io.js` — stdin reading utilities
 - `scripts/lib/logging.js` — violation logging
-- `scripts/lib/enforce-file.js` — file enforcement (Read/Write/Edit/MultiEdit)
-- `scripts/lib/enforce-bash.js` — bash command enforcement
-- `scripts/lib/enforce-prompt.js` — prompt @mention enforcement
 - `scripts/test/*.test.js` — unit tests (node:test), one per source file
 - `scripts/validate-json.js` — JSON validation script (used in CI)
 - `defaults/patronum.json` — default protection patterns shipped with plugin

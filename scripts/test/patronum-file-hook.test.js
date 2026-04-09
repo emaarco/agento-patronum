@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const { strictEqual } = require('node:assert');
-const { enforceFile } = require('../lib/enforce-file');
+const { enforceFile } = require('../patronum-file-hook');
 
 const HOME = '/home/testuser';
 

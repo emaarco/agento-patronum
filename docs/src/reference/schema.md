@@ -1,6 +1,6 @@
 # patronum.json Schema
 
-The protection config is stored at `~/.claude/patronum.json`.
+The protection config is stored at `~/.claude/patronum/patronum.json`.
 
 ## Full schema
 
@@ -44,5 +44,5 @@ The config file contains an array of protection entries and a version field:
 
 | Path | Purpose |
 |------|---------|
-| `~/.claude/patronum.json` | User config (survives plugin updates) |
+| `~/.claude/patronum/patronum.json` | User config (survives plugin updates) |
 | `defaults/patronum.json` | Plugin defaults (copied on first setup) |

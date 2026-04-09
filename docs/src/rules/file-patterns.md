@@ -43,8 +43,8 @@ This blocks any file inside the SSH directory:
 
 1. The hook receives the full file path from Claude Code (e.g. `/Users/you/.ssh/id_rsa`)
 2. `~` in patterns is expanded to `$HOME`
-3. `**/` is normalized for path matching
-4. Bash glob matching compares the path against each pattern
+3. `**/` is normalized for deep path matching
+4. The glob is converted to a regular expression and tested against the full path
 5. First match wins — the file is blocked
 
 ## @mention protection

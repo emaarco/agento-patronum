@@ -56,13 +56,13 @@ Out of the box, agento-patronum blocks access to:
 | Docker | `~/.docker/config.json` |
 | Kubernetes | `~/.kube/config` |
 | Package tokens | `~/.npmrc`, `~/.pypirc` |
-| Shell commands | `printenv`, `env`, `set` |
+| Shell commands | `printenv` |
 
 Need more? Run `/patronum-suggest` — it analyzes your stack and recommends what to add.
 
 ## ⚙️ How it works
 
-agento-patronum registers a `PreToolUse` hook that intercepts every `Read`, `Write`, `Edit`, and `Bash` tool call. It checks the file path or command against patterns in `~/.claude/patronum.json`. If a pattern matches, the tool call is blocked and logged.
+agento-patronum registers a `PreToolUse` hook that intercepts every `Read`, `Write`, `Edit`, and `Bash` tool call. It checks the file path or command against patterns in `~/.claude/patronum/patronum.json`. If a pattern matches, the tool call is blocked and logged.
 
 No cloud, no binary, no external dependencies. Pure Node.js — guaranteed by Claude Code.
 

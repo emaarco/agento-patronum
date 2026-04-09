@@ -19,7 +19,7 @@ Inside Claude Code, run:
 
 ## Auto-invocation
 
-Unlike other commands, `/patronum-suggest` can be invoked automatically by Claude when it detects relevant context — for example, when you mention a new cloud provider or start working with a tech stack that has known sensitive files.
+`/patronum-suggest` may be invoked automatically by Claude when it detects relevant context — for example, when you mention a new cloud provider or start working with a tech stack that has known sensitive files. This relies on the model recognizing the context, so it works on a best-effort basis.
 
 ## Example
 

@@ -12,6 +12,6 @@ All management of agento-patronum happens via [skills](https://agentskills.io) �
 
 ## How they work
 
-Each skill is a `SKILL.md` file following the [agentskills.io](https://agentskills.io) specification. Skills instruct Claude to call the corresponding shell script via the Bash tool. The scripts read and write `~/.claude/patronum.json`.
+Each skill is a `SKILL.md` file following the [agentskills.io](https://agentskills.io) specification. Skills instruct Claude to call the corresponding Node.js script via the Bash tool. The scripts read and write `~/.claude/patronum/patronum.json`.
 
-No external binary, no API calls — everything runs locally in your shell.
+No external binary, no API calls — everything runs locally via Node.js.

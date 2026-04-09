@@ -43,4 +43,4 @@ Shows all patterns with their source (`default` or `user`) and reason.
 
 ## Where patterns are stored
 
-Your patterns live at `~/.claude/patronum.json`. This file is user-owned and persists across plugin updates. You can edit it directly, but using the slash commands is recommended.
+Your patterns live at `~/.claude/patronum/patronum.json`. This file is user-owned and persists across plugin updates. You can edit it directly, but using the slash commands is recommended.

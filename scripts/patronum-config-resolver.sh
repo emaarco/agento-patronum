@@ -18,7 +18,22 @@ PATRONUM_LOCAL_REPO_CONFIG=""
 PATRONUM_CONFIG="$PATRONUM_USER_CONFIG"
 PATRONUM_LOG="$PATRONUM_DIR/patronum.log"
 
-_PATRONUM_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
+# Derive project root: prefer CLAUDE_PLUGIN_ROOT (reliable for project-scope installs)
+# over git rev-parse (may fail if hook CWD is outside the repo).
+# For project-scope: CLAUDE_PLUGIN_ROOT = $REPO_ROOT/.claude/plugins/agento-patronum
+_PATRONUM_ROOT=""
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
+  _CANDIDATE=$(dirname "$(dirname "$CLAUDE_PLUGIN_ROOT")")
+  if [ -f "$_CANDIDATE/.claude/patronum/patronum.json" ] || \
+     [ -f "$_CANDIDATE/.claude/patronum/patronum.local.json" ]; then
+    _PATRONUM_ROOT="$_CANDIDATE"
+  fi
+  unset _CANDIDATE
+fi
+if [ -z "$_PATRONUM_ROOT" ]; then
+  _PATRONUM_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || true)
+fi
+
 if [ -n "$_PATRONUM_ROOT" ]; then
   _PROJ="$_PATRONUM_ROOT/.claude/patronum/patronum.json"
   _LOCAL="$_PATRONUM_ROOT/.claude/patronum/patronum.local.json"

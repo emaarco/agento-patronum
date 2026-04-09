@@ -19,6 +19,9 @@ Install via Claude Code marketplace:
 - `hooks/hooks.json` — registers SessionStart + PreToolUse hooks
 - `scripts/patronum-*.js` — all Node.js scripts (hook, setup, add, remove, list, verify, uninstall)
 - `scripts/lib/patronum.js` — shared library (config resolution, glob matching, utilities)
+- `scripts/lib/enforce.js` — pure enforcement functions (enforceFile, enforceBash, enforcePrompt)
+- `scripts/lib/runHook.js` — shared hook wrapper (config loading, validation, exit logic)
+- `scripts/test/*.test.js` — unit tests (node:test)
 - `defaults/patronum.json` — default protection patterns shipped with plugin
 - `skills/*/SKILL.md` — user-facing skills (per agentskills.io spec)
 - `.claude/skills/*/SKILL.md` — dev-only skills (installed with plugin, prefixed `patronum-dev-`)
@@ -27,10 +30,10 @@ Install via Claude Code marketplace:
 
 ### How It Works
 1. On install, `hooks.json` registers a SessionStart hook and a PreToolUse hook
-2. SessionStart runs `patronum-setup.sh` which copies default patterns to `~/.claude/patronum.json`
-3. Every Read/Write/Edit/Bash call goes through `patronum-hook.sh`
-4. The hook checks the file path or command against patterns in `~/.claude/patronum.json`
-5. If a pattern matches, the hook exits with code 2 (blocks the tool) and logs to `~/.claude/patronum.log`
+2. SessionStart runs `patronum-setup.js` which copies default patterns to `~/.claude/patronum/patronum.json`
+3. Every Read/Write/Edit/Bash call goes through a thin hook wrapper (`runHook.js`) that calls a pure enforce function (`enforce.js`)
+4. The enforce function checks the file path or command against patterns in the config
+5. If a pattern matches, the hook exits with code 2 (blocks the tool) and logs to `~/.claude/patronum/patronum.log`
 
 ### Key Files
 - `~/.claude/patronum.json` — user's protection config (persists across plugin updates)
@@ -40,11 +43,15 @@ Install via Claude Code marketplace:
 
 ### Validate
 ```bash
+# Run unit tests
+node --test 'scripts/test/*.test.js'
+
+# Run integration self-test
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-setup.js
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
+
 # Validate all JSON
 node -e "['.claude-plugin/plugin.json','hooks/hooks.json','defaults/patronum.json'].forEach(f=>JSON.parse(require('fs').readFileSync(f,'utf8')))"
-
-# Run self-test
-CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
 ```
 
 ### Documentation
@@ -61,7 +68,7 @@ cd docs && npm run build  # Build for production
 ## Best Practices
 
 ### Verify After Each Change
-After modifying any script, run `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js` to confirm behavior.
+After modifying any script, run `node --test 'scripts/test/*.test.js'` for unit tests and `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js` for integration smoke tests.
 
 ### Script Naming
 All scripts are prefixed with `patronum-` to avoid name collisions with other plugins.

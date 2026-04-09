@@ -52,7 +52,10 @@ jobs:
             echo "$f: frontmatter OK"
           done
 
-      - name: Run self-test
+      - name: Run unit tests
+        run: node --test 'scripts/test/*.test.js'
+
+      - name: Run integration self-test
         run: |
           CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-setup.js
           CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js

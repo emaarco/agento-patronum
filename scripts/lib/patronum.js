@@ -98,8 +98,8 @@ function globTest(str, pattern) {
   return new RegExp('^' + re + '$').test(str);
 }
 
-function matchGlob(filePath, pattern) {
-  const home = process.env.HOME || '';
+function matchGlob(filePath, pattern, home) {
+  home = home || process.env.HOME || '';
   let p = pattern.replace(/^~/, home);
   let fp = filePath.replace(/^~/, home);
 

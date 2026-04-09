@@ -70,8 +70,31 @@ Your config files (`~/.claude/patronum/`, `.claude/patronum/`) are preserved —
 
 ### Full data removal
 
-To remove all agento-patronum data (plugin, config, and audit log):
+To remove all agento-patronum data (config files and audit logs), run these two steps:
+
+**Step 1 — Uninstall the plugin:**
+```bash
+claude plugin uninstall agento-patronum@emaarco
+```
+
+**Step 2 — Remove config and log files:**
+
+Locate and run the cleanup script (Claude Code stores plugins in a versioned cache path):
 
 ```bash
-bash ~/.claude/plugins/agento-patronum/scripts/patronum-uninstall.sh
+# Locate the script
+PATRONUM_UNINSTALL=$(find ~/.claude/plugins/cache -name "patronum-uninstall.sh" 2>/dev/null | head -1)
+
+# Run it (from inside your git repo if you have a project/local install)
+bash "$PATRONUM_UNINSTALL"
 ```
+
+This removes `~/.claude/patronum/` (user-scope data). If you installed at project or local scope, run the command from inside your git repository — the script will also remove `.claude/patronum/` from the repo root.
+
+::: tip No local cache?
+If step 1 already cleared the cache, clone the repo and run from source:
+```bash
+git clone https://github.com/emaarco/agento-patronum.git
+bash agento-patronum/scripts/patronum-uninstall.sh
+```
+:::

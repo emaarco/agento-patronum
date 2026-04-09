@@ -2,6 +2,13 @@
 
 All notable changes to agento-patronum are documented here.
 
+## [0.0.0.1] - 2026-04-09
+
+### Changed
+
+- Landing page hero title updated from "Your files. Protected." to "Your secrets. Protected." for sharper, more specific messaging
+- Added awareness copy in the "invisible risk" section: calls out that most developers using AI agents today haven't secured themselves from credential exposure
+
 ## 0.1.0
 
 Initial release.

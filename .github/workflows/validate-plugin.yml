@@ -53,7 +53,7 @@ jobs:
           done
 
       - name: Run unit tests
-        run: node --test 'scripts/test/*.test.js'
+        run: node --test scripts/test/*.test.js
 
       - name: Run integration self-test
         run: |

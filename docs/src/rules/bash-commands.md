@@ -16,8 +16,6 @@ A pattern like `Bash(printenv)` blocks any Bash tool call where the command star
 | Pattern | What it blocks |
 |---------|---------------|
 | `Bash(printenv)` | Dumps all environment variables |
-| `Bash(env)` | Dumps all environment variables |
-| `Bash(set)` | Dumps all shell variables and functions |
 
 ## Adding custom command blocks
 

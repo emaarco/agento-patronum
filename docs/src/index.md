@@ -87,7 +87,7 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 <div class="flow-step step-amber">
 <div class="flow-icon">🛡️</div>
 <div class="flow-label">PreToolUse Hook</div>
-<div class="flow-desc">patronum-hook.sh intercepts</div>
+<div class="flow-desc">patronum hooks intercept</div>
 </div>
 <div class="flow-arrow">→</div>
 <div class="flow-step step-green">

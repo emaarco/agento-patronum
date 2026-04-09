@@ -38,8 +38,8 @@ Install via Claude Code marketplace:
 5. If a pattern matches, the hook exits with code 2 (blocks the tool) and logs to `~/.claude/patronum/patronum.log`
 
 ### Key Files
-- `~/.claude/patronum.json` — user's protection config (persists across plugin updates)
-- `~/.claude/patronum.log` — JSONL audit log of blocked actions
+- `~/.claude/patronum/patronum.json` — user's protection config (persists across plugin updates)
+- `~/.claude/patronum/patronum.log` — JSONL audit log of blocked actions
 
 ## Common Commands
 

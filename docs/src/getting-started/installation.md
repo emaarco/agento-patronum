@@ -37,7 +37,7 @@ Claude Code plugins can be installed at three scopes — all three can be active
 :::
 
 ::: tip Repo configs are auto-created
-On the first `SessionStart` after install, `patronum-setup.sh` creates the right config file if it doesn't exist yet. Add these to your `.gitignore`:
+On the first `SessionStart` after install, `patronum-setup.js` creates the right config file if it doesn't exist yet. Add these to your `.gitignore`:
 ```
 .claude/patronum/patronum.local.json
 .claude/patronum/patronum.log
@@ -56,11 +56,6 @@ All present configs are loaded simultaneously — rules are merged, not replaced
 
 Your personal credential protections (`~/.ssh/`, `~/.aws/`) can never be overridden by a project config. `/patronum-list` shows each config separately.
 
-::: info Which scope should I use?
-**Solo developer**: use **user scope** (the default). Install once, protected everywhere.
-
-**Team setup**: install at **project scope** — `.claude/settings.json` is committed so every contributor gets the plugin automatically. The shared `.claude/patronum/patronum.json` ensures everyone enforces the same rules. Encourage contributors to also install at user scope so their personal credential protections (SSH keys, AWS credentials) remain active in every project they work on.
-:::
 
 ## Verify installation
 

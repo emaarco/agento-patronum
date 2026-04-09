@@ -46,3 +46,9 @@ This blocks any file inside the SSH directory:
 3. `**/` is normalized for path matching
 4. Bash glob matching compares the path against each pattern
 5. First match wins — the file is blocked
+
+## @mention protection
+
+File patterns also apply to `@file` mentions in user prompts (e.g. `@stack/.env.local`). Claude Code injects `@mention` file content directly into the conversation context before any tool call fires, so a dedicated `UserPromptSubmit` hook checks `@` references before Claude processes the prompt.
+
+If `@stack/.env.local` matches `**/.env.*`, the prompt is blocked and Claude never sees the file contents — the same outcome as blocking a `Read` tool call.

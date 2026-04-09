@@ -2,7 +2,6 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "",
         "hooks": [
           {
             "type": "command",
@@ -13,7 +12,14 @@
     ],
     "UserPromptSubmit": [
       {
-        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/patronum-install-check.sh\""
+          }
+        ]
+      },
+      {
         "hooks": [
           {
             "type": "command",

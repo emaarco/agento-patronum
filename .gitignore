@@ -4,3 +4,10 @@ docs/src/.vitepress/cache/
 .DS_Store
 .tmp/
 .gstack/
+
+# Claude Code local settings (personal, not for sharing)
+.claude/settings.local.json
+
+# agento-patronum — local-scope config and audit log (not for sharing)
+.claude/patronum/patronum.local.json
+.claude/patronum/patronum.log

@@ -6,7 +6,7 @@ set -euo pipefail
 
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 HOOK_SCRIPT="$PLUGIN_ROOT/scripts/patronum-hook.sh"
-CONFIG_FILE="$HOME/.claude/patronum.json"
+CONFIG_FILE="$HOME/.claude/patronum/patronum.json"
 PASS=0
 FAIL=0
 
@@ -61,7 +61,7 @@ else
 fi
 
 # Check all expected scripts exist
-for SCRIPT in patronum-hook.sh patronum-setup.sh patronum-add.sh patronum-remove.sh patronum-list.sh patronum-verify.sh patronum-uninstall.sh; do
+for SCRIPT in patronum-hook.sh patronum-setup.sh patronum-add.sh patronum-remove.sh patronum-list.sh patronum-verify.sh patronum-uninstall.sh patronum-config-resolver.sh; do
   if [ -f "$PLUGIN_ROOT/scripts/$SCRIPT" ]; then
     check_install "scripts/$SCRIPT present" pass
   else
@@ -76,13 +76,16 @@ else
   check_install "defaults/patronum.json present" fail "not found at $PLUGIN_ROOT/defaults/patronum.json"
 fi
 
-# Check config file exists and is valid JSON
-if [ ! -f "$CONFIG_FILE" ]; then
-  check_install "~/.claude/patronum.json exists" fail "run setup or reinstall the plugin"
+# Check config directory and user config exist and are valid JSON
+PATRONUM_DIR="$HOME/.claude/patronum"
+if [ ! -d "$PATRONUM_DIR" ]; then
+  check_install "~/.claude/patronum/ directory exists" fail "run setup or reinstall the plugin"
+elif [ ! -f "$CONFIG_FILE" ]; then
+  check_install "~/.claude/patronum/patronum.json exists" fail "run setup or reinstall the plugin"
 elif jq empty "$CONFIG_FILE" 2>/dev/null; then
-  check_install "~/.claude/patronum.json valid JSON" pass
+  check_install "~/.claude/patronum/patronum.json valid JSON" pass
 else
-  check_install "~/.claude/patronum.json valid JSON" fail "file is malformed — delete it and re-run setup"
+  check_install "~/.claude/patronum/patronum.json valid JSON" fail "file is malformed — delete it and re-run setup"
 fi
 
 if [ "$INSTALL_FAIL" -gt 0 ]; then
@@ -166,8 +169,7 @@ run_test "Allow Bash(env NODE_ENV=test npm run build)" \
   0
 
 # Test 14: No-config guard — with a nonexistent config, hook should allow (fail-open)
-ORIG_CONFIG="$CONFIG_FILE"
-TEMP_ABSENT="$HOME/.claude/patronum.json.verify-absent"
+TEMP_ABSENT="$CONFIG_FILE.verify-absent"
 mv "$CONFIG_FILE" "$TEMP_ABSENT" 2>/dev/null || true
 if [ ! -f "$CONFIG_FILE" ]; then
   run_test "No-config: allow all (fail-open)" \

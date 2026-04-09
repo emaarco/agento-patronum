@@ -4,30 +4,46 @@
 
 set -euo pipefail
 
-CONFIG_FILE="$HOME/.claude/patronum.json"
-
 if ! command -v jq &> /dev/null; then
   echo "ERROR: jq is required but not installed. Install with: brew install jq (macOS) or apt install jq (Linux)" >&2
   exit 1
 fi
 
-if [ ! -f "$CONFIG_FILE" ]; then
-  echo "Error: $CONFIG_FILE not found. Run /patronum-verify to check setup." >&2
+# shellcheck source=patronum-config-resolver.sh
+source "$(dirname "$0")/patronum-config-resolver.sh"
+
+print_config() {
+  local CFG="$1" LABEL="$2"
+  [ ! -f "$CFG" ] && return
+  local COUNT
+  COUNT=$(jq '.entries | length' "$CFG")
+  echo "$LABEL ($COUNT patterns)"
+  echo "Config: $CFG"
+  if [ "$COUNT" -gt 0 ]; then
+    echo ""
+    printf "  %-33s %-10s %s\n" "PATTERN" "SOURCE" "REASON"
+    printf "  %-33s %-10s %s\n" "-------" "------" "------"
+    jq -r '.entries[] | [.pattern, .source, .reason] | @tsv' "$CFG" | while IFS=$'\t' read -r PATTERN SOURCE REASON; do
+      printf "  %-33s %-10s %s\n" "$PATTERN" "$SOURCE" "$REASON"
+    done
+  fi
+}
+
+if [ ! -f "$PATRONUM_USER_CONFIG" ] && \
+   { [ -z "${PATRONUM_PROJ_CONFIG:-}" ] || [ ! -f "$PATRONUM_PROJ_CONFIG" ]; } && \
+   { [ -z "${PATRONUM_LOCAL_REPO_CONFIG:-}" ] || [ ! -f "$PATRONUM_LOCAL_REPO_CONFIG" ]; }; then
+  echo "Error: no config found. Run /patronum-verify to check setup." >&2
   exit 1
 fi
 
-COUNT=$(jq '.entries | length' "$CONFIG_FILE")
+print_config "$PATRONUM_USER_CONFIG" "User config (always active)"
 
-if [ "$COUNT" -eq 0 ]; then
-  echo "No protection patterns configured."
-  exit 0
+if [ -n "${PATRONUM_PROJ_CONFIG:-}" ] && [ -f "$PATRONUM_PROJ_CONFIG" ]; then
+  echo ""
+  print_config "$PATRONUM_PROJ_CONFIG" "Project config (committed, merged on top)"
 fi
 
-echo "agento-patronum: $COUNT protected patterns"
-echo ""
-printf "%-35s %-10s %s\n" "PATTERN" "SOURCE" "REASON"
-printf "%-35s %-10s %s\n" "-------" "------" "------"
-
-jq -r '.entries[] | [.pattern, .source, .reason] | @tsv' "$CONFIG_FILE" | while IFS=$'\t' read -r PATTERN SOURCE REASON; do
-  printf "%-35s %-10s %s\n" "$PATTERN" "$SOURCE" "$REASON"
-done
+if [ -n "${PATRONUM_LOCAL_REPO_CONFIG:-}" ] && [ -f "$PATRONUM_LOCAL_REPO_CONFIG" ]; then
+  echo ""
+  print_config "$PATRONUM_LOCAL_REPO_CONFIG" "Local repo config (gitignored, merged on top)"
+fi

@@ -32,7 +32,9 @@ function resolveConfig() {
   if (!projectRoot) {
     try {
       projectRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
-    } catch { console.debug('patronum: not in a git repo, skipping project config'); }
+    } catch {
+      console.debug('patronum: not in a git repo, skipping project config');
+    }
   }
 
   if (projectRoot) {

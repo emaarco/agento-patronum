@@ -1,7 +1,7 @@
 ---
 name: patronum-suggest
 description: "Suggest protection patterns based on project context. Invoke automatically when user mentions a new tech stack, cloud provider, or sensitive tooling. Also invoke when user asks what to protect."
-allowed-tools: Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"), Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.sh" *), Glob, Read, AskUserQuestion, WebSearch
+allowed-tools: Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"), Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.sh" *), Glob, AskUserQuestion, WebSearch
 ---
 
 # Skill: patronum-suggest
@@ -12,11 +12,20 @@ Analyze the current project and suggest relevant protection patterns.
 
 ### 1. Detect tech stack
 
-Check what tools and cloud services are in use. Look at:
-- `package.json`, `go.mod`, `requirements.txt`, `Gemfile`, `Cargo.toml`
-- `.tf` files (Terraform), `docker-compose.yml`, `Dockerfile`
-- `.gcloud/`, `.azure/`, cloud config directories
-- CI/CD files (`.github/workflows/`, `.gitlab-ci.yml`)
+Use `Glob` to list files in the project. Do NOT read file contents — infer the stack from file names and paths alone.
+
+Signals to look for:
+- `package.json` → Node.js / npm
+- `go.mod` → Go
+- `requirements.txt`, `pyproject.toml`, `Pipfile` → Python
+- `Gemfile` → Ruby
+- `Cargo.toml` → Rust
+- `**/*.tf` → Terraform
+- `docker-compose.yml`, `Dockerfile` → Docker
+- `.gcloud/`, `.azure/` directories → GCP / Azure
+- `.github/workflows/*.yml`, `.gitlab-ci.yml` → CI/CD
+- `pom.xml`, `build.gradle` → Java / Gradle / Maven
+- `*.kubeconfig`, `kubeconfig` → Kubernetes
 
 ### 2. Research sensitive files
 

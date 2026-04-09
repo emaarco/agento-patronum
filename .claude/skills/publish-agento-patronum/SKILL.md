@@ -3,14 +3,14 @@ name: publish-agento-patronum
 argument-hint: "<new-version>"
 description: "Release a new version of agento-patronum: bumps plugin.json version, updates changelog, creates a GitHub release draft."
 disable-model-invocation: true
-allowed-tools: Read, Edit, Bash(git *), Bash(gh release *), Bash(jq *)
+allowed-tools: Read, Edit, Bash(git *), Bash(gh release *), Bash(node *)
 ---
 
 # Skill: publish-agento-patronum
 
 Release a new version of agento-patronum.
 
-> **Note:** agento-patronum is a bash + jq plugin — not an npm package. The version lives in `.claude-plugin/plugin.json`. Do not use `npm version`.
+> **Note:** agento-patronum is a Node.js plugin — not an npm package. The version lives in `.claude-plugin/plugin.json`. Do not use `npm version`.
 
 > **Docs deploy:** The `deploy-docs.yml` workflow runs automatically when a GitHub release is published. No manual trigger needed.
 
@@ -37,7 +37,7 @@ Stop if not on `main`.
 Show the current version and ask for the new one if not provided as an argument:
 
 ```bash
-jq -r '.version' .claude-plugin/plugin.json
+node -e "console.log(JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8')).version)"
 ```
 
 Follow semver: `MAJOR.MINOR.PATCH`.
@@ -47,14 +47,19 @@ Follow semver: `MAJOR.MINOR.PATCH`.
 ### 4. Bump version in plugin.json
 
 ```bash
-jq --arg v "<new-version>" '.version = $v' .claude-plugin/plugin.json > /tmp/plugin.json.tmp
-mv /tmp/plugin.json.tmp .claude-plugin/plugin.json
+node -e "
+const fs = require('fs');
+const path = '.claude-plugin/plugin.json';
+const pkg = JSON.parse(fs.readFileSync(path, 'utf8'));
+pkg.version = '<new-version>';
+fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');
+"
 ```
 
 Verify:
 
 ```bash
-jq -r '.version' .claude-plugin/plugin.json
+node -e "console.log(JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8')).version)"
 ```
 
 ## Changelog

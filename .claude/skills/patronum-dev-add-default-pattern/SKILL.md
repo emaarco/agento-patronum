@@ -3,7 +3,7 @@ name: patronum-dev-add-default-pattern
 argument-hint: "\"<pattern>\" --reason \"<reason>\""
 description: "Add a new default pattern to defaults/patronum.json with correct schema and validation."
 disable-model-invocation: true
-allowed-tools: Read, Edit, Bash(jq *), Bash(CLAUDE_PLUGIN_ROOT=* bash scripts/patronum-verify.sh)
+allowed-tools: Read, Edit, Bash(node *), Bash(CLAUDE_PLUGIN_ROOT=* node scripts/patronum-verify.js)
 ---
 
 # Skill: patronum-dev-add-default-pattern
@@ -41,7 +41,7 @@ Edit `defaults/patronum.json` to add the new entry with the correct schema:
 ### 4. Validate JSON
 
 ```bash
-jq empty defaults/patronum.json
+node -e "JSON.parse(require('fs').readFileSync('defaults/patronum.json','utf8'))" && echo "patronum.json OK"
 ```
 
 ### 5. Run self-test
@@ -50,7 +50,7 @@ Copy the updated defaults to the config and run verify:
 
 ```bash
 cp defaults/patronum.json ~/.claude/patronum.json
-CLAUDE_PLUGIN_ROOT="$(pwd)" bash scripts/patronum-verify.sh
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
 ```
 
 ### 6. Report

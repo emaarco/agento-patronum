@@ -2,36 +2,6 @@
 
 Get agento-patronum running in under a minute. Two commands, one restart — your credentials are shielded.
 
-## Prerequisites
-
-agento-patronum requires **jq** for JSON processing. Check if you have it:
-
-```bash
-jq --version
-```
-
-If not, install it:
-
-::: code-group
-
-```bash [macOS]
-brew install jq
-```
-
-```bash [Debian / Ubuntu]
-apt install jq
-```
-
-```bash [RHEL / CentOS]
-yum install jq
-```
-
-```bash [WSL / Windows]
-apt install jq
-```
-
-:::
-
 ## Install in two commands
 
 Run these inside Claude Code:

@@ -2,7 +2,7 @@
 name: patronum-dev-validate
 description: "Validate the agento-patronum plugin structure. Run before opening a PR."
 disable-model-invocation: true
-allowed-tools: Bash(bash -n *), Bash(jq *), Bash(head *), Bash(test *), Glob, Read
+allowed-tools: Bash(node *), Bash(head *), Bash(test *), Glob, Read
 ---
 
 # Skill: patronum-dev-validate
@@ -14,10 +14,10 @@ Run all plugin validation checks locally.
 ### 1. JSON validity
 
 ```bash
-jq empty .claude-plugin/plugin.json && echo "plugin.json OK"
-jq empty .claude-plugin/marketplace.json && echo "marketplace.json OK"
-jq empty hooks/hooks.json && echo "hooks.json OK"
-jq empty defaults/patronum.json && echo "patronum.json OK"
+node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/plugin.json','utf8'))" && echo "plugin.json OK"
+node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'))" && echo "marketplace.json OK"
+node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))" && echo "hooks.json OK"
+node -e "JSON.parse(require('fs').readFileSync('defaults/patronum.json','utf8'))" && echo "patronum.json OK"
 ```
 
 ### 1b. marketplace.json schema
@@ -25,10 +25,18 @@ jq empty defaults/patronum.json && echo "patronum.json OK"
 Verify the `source` field starts with `./` and `metadata.description` is present (both required by Claude Code validation):
 
 ```bash
-jq -e '.plugins[] | (.source | type) == "string" and startswith("./")' \
-  .claude-plugin/marketplace.json && echo "marketplace source OK"
-jq -e '.metadata.description | type == "string" and length > 0' \
-  .claude-plugin/marketplace.json && echo "marketplace description OK"
+node -e "
+const m = JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'));
+const p = m.plugins[0];
+if (typeof p.source === 'string' && p.source.startsWith('./')) console.log('marketplace source OK');
+else { console.error('marketplace source FAIL'); process.exit(1); }
+"
+node -e "
+const m = JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'));
+const d = m.metadata && m.metadata.description;
+if (typeof d === 'string' && d.length > 0) console.log('marketplace description OK');
+else { console.error('marketplace description FAIL'); process.exit(1); }
+"
 ```
 
 ### 2. Default patterns check
@@ -36,22 +44,31 @@ jq -e '.metadata.description | type == "string" and length > 0' \
 Verify `defaults/patronum.json` has at least one entry:
 
 ```bash
-COUNT=$(jq '.entries | length' defaults/patronum.json)
-[ "$COUNT" -gt 0 ] && echo "Default patterns: $COUNT entries OK"
+node -e "
+const d = JSON.parse(require('fs').readFileSync('defaults/patronum.json','utf8'));
+const count = d.entries.length;
+if (count > 0) console.log('Default patterns: ' + count + ' entries OK');
+else { console.error('No default patterns found'); process.exit(1); }
+"
 ```
 
-### 3. Bash syntax
+### 3. Script syntax
 
 ```bash
-for f in scripts/patronum-*.sh; do
-  bash -n "$f" && echo "$f OK"
-done
+node -e "
+const fs = require('fs');
+const glob = require('path');
+fs.readdirSync('scripts').filter(f => f.startsWith('patronum-') && f.endsWith('.js')).forEach(f => {
+  try { require('child_process').execSync('node -c scripts/' + f, {stdio:'pipe'}); console.log('scripts/' + f + ' OK'); }
+  catch(e) { console.error('scripts/' + f + ' FAIL'); process.exit(1); }
+});
+"
 ```
 
 ### 4. Script permissions
 
 ```bash
-for f in scripts/patronum-*.sh; do
+for f in scripts/patronum-*.js; do
   test -x "$f" && echo "$f executable OK"
 done
 ```

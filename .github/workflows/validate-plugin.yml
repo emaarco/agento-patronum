@@ -12,38 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Ensure jq is available
-        run: |
-          if ! command -v jq &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y jq
-          fi
-          jq --version
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
       - name: Validate JSON files
-        run: |
-          jq empty .claude-plugin/plugin.json
-          jq empty hooks/hooks.json
-          jq empty defaults/patronum.json
-          echo "All JSON files valid"
-
-      - name: Check default patterns
-        run: |
-          COUNT=$(jq '.entries | length' defaults/patronum.json)
-          echo "Default patterns: $COUNT"
-          [ "$COUNT" -gt 0 ] || (echo "No default patterns found" && exit 1)
-
-      - name: Validate bash scripts
-        run: |
-          for f in scripts/patronum-*.sh; do
-            bash -n "$f" && echo "$f: syntax OK"
-          done
-
-      - name: Check script permissions
-        run: |
-          for f in scripts/patronum-*.sh; do
-            test -x "$f" || (echo "$f: not executable" && exit 1)
-            echo "$f: executable OK"
-          done
+        run: node scripts/validate-json.js
 
       - name: Validate SKILL.md frontmatter
         run: |
@@ -53,7 +28,10 @@ jobs:
             echo "$f: frontmatter OK"
           done
 
-      - name: Run self-test
+      - name: Run unit tests
+        run: node --test scripts/test/*.test.js
+
+      - name: Run integration self-test
         run: |
-          CLAUDE_PLUGIN_ROOT="$(pwd)" bash scripts/patronum-setup.sh
-          CLAUDE_PLUGIN_ROOT="$(pwd)" bash scripts/patronum-verify.sh
+          CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-setup.js
+          CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js

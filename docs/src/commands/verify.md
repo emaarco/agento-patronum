@@ -27,7 +27,7 @@ The verify command simulates tool calls and checks whether the hook blocks or al
 
 If tests fail, the command checks:
 
-1. Is `jq` installed?
+1. Is `node` available?
 2. Does `~/.claude/patronum.json` exist?
 3. Is the JSON valid?
 4. Are the hook scripts accessible?

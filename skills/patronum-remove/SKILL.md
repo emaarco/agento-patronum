@@ -2,7 +2,7 @@
 name: patronum-remove
 argument-hint: "\"<pattern>\""
 description: "Remove a pattern from the agento-patronum protection list. Use when the user wants to unblock access to a file or command."
-allowed-tools: Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-remove.sh" *), Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"), AskUserQuestion
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-remove.js" *), Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"), AskUserQuestion
 ---
 
 # Skill: patronum-remove
@@ -13,7 +13,7 @@ Remove a protection pattern from the agento-patronum shield.
 
 ### 1. Show current protections
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"` to get all current patterns.
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"` to get all current patterns.
 
 ### 2. Identify the pattern to remove
 
@@ -31,12 +31,12 @@ Use `AskUserQuestion` to confirm the removal. Present:
 
 After the user confirms, run:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-remove.sh" "$ARGUMENTS"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-remove.js" "$ARGUMENTS"
 ```
 
 ### 5. Present updated list
 
-Run `bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"` again and present the updated protection list as a markdown table:
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"` again and present the updated protection list as a markdown table:
 
 | Pattern | Source | Reason |
 |---------|--------|--------|

@@ -1,7 +1,7 @@
 ---
 name: patronum-suggest
 description: "Suggest protection patterns based on project context. Invoke automatically when user mentions a new tech stack, cloud provider, or sensitive tooling. Also invoke when user asks what to protect."
-allowed-tools: Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"), Bash(bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.sh" *), Glob, AskUserQuestion, WebSearch
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"), Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.js" *), Glob, AskUserQuestion, WebSearch
 ---
 
 # Skill: patronum-suggest
@@ -37,7 +37,7 @@ This ensures suggestions cover technology-specific risks beyond the hardcoded li
 
 ### 3. Check current protections
 
-Run: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.sh"` to see what is already protected.
+Run: `node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"` to see what is already protected.
 
 ### 4. Build suggestions
 
@@ -62,7 +62,7 @@ Let the user select which patterns to add.
 
 For each confirmed pattern, run:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.sh" "<pattern>" --reason "<reason>"
+node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.js" "<pattern>" --reason "<reason>"
 ```
 
 Present the final updated protection list as a markdown table.

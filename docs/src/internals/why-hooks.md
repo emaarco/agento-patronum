@@ -1,6 +1,6 @@
 # Why Hooks (not settings.json)
 
-> For the big picture — why this tool exists and how it compares to alternatives — see [Why patronum](/internals/why-patronum).
+> For the big picture — why this tool exists — see [Why patronum](/internals/why-patronum).
 
 Claude Code has a built-in `permissions.deny` mechanism in `settings.json`. It's the obvious first choice — but a growing number of community reports suggest it doesn't hold up well in practice.
 

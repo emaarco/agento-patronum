@@ -68,14 +68,11 @@ No cloud, no binary, no external dependencies. Pure Node.js — guaranteed by Cl
 
 ## 📖 Story behind the plugin
 
-Claude Code's `permissions.deny` rules in `settings.json` are intended to prevent access to sensitive files.
-Whether they always work reliably is unclear — past issues suggest they can be bypassed in certain situations.
+Claude Code offers built-in `permissions.deny` rules in `settings.json`. These may work correctly — but you can't see how they're interpreted internally. Community reports have raised questions about edge cases ([#6699](https://github.com/anthropics/claude-code/issues/6699), [#6631](https://github.com/anthropics/claude-code/issues/6631), [#24846](https://github.com/anthropics/claude-code/issues/24846)), and [The Register covered the topic](https://www.theregister.com/2026/01/28/claude_code_ai_secrets_files/) in early 2026.
 
-agento-patronum takes a different approach: PreToolUse hooks are explicit, transparent, and verifiable.
-It's one solution among others — but it's one you can inspect, extend, and trust.
-The plugin makes hook-based protection accessible in two install commands.
+agento-patronum takes a different approach: PreToolUse hooks are code you own. Every interception is explicit, every blocked call is logged, and you can read the source to verify exactly what happens. No build, no daemon, no account, no data leaving your machine.
 
-Read more in the [documentation](https://emaarco.github.io/agento-patronum/internals/why-hooks).
+Read more in [Why patronum](https://emaarco.github.io/agento-patronum/internals/why-patronum) and [Why Hooks](https://emaarco.github.io/agento-patronum/internals/why-hooks).
 
 ## 🤝 Contributing
 

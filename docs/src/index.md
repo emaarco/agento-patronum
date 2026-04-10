@@ -15,15 +15,19 @@ hero:
 
 features:
   - icon: "\uD83D\uDD12"
-    title: Hook-Based Enforcement
-    details: Built-in access controls may not always be reliable. agento-patronum uses PreToolUse hooks — an explicit enforcement layer you control and can verify yourself.
+    title: No Build, No Daemon, No Account
+    details: Node.js scripts and AI agent skills. Nothing to compile, nothing running in the background, no signup required. Two commands to install.
+  - icon: "\uD83D\uDEE1\uFE0F"
+    title: Nothing Leaves Your Machine
+    details: Local pattern matching against a JSON config file. No cloud, no telemetry, no API calls. Code you can audit in a few minutes.
   - icon: "\uD83E\uDDD9"
-    title: Stack-Aware Suggestions
-    details: Detects your tech stack and suggests what to protect. AWS, Terraform, Docker, GCP — it knows the sensitive files before you do.
-  - icon: "\uD83D\uDCE6"
-    title: Install Once, Always Protected
-    details: Two commands to install. Your custom rules survive plugin updates. Every blocked action is logged for audit. Pure Node.js, no external dependencies.
+    title: Hook-Based Enforcement
+    details: Uses PreToolUse hooks — an explicit enforcement layer you own and can verify. Every blocked action is logged. Stack-aware suggestions included.
 ---
+
+<script setup>
+import { withBase } from 'vitepress'
+</script>
 
 <div class="early-version-banner">
   Early version — agento-patronum is under active development (v0.1.0). Features and defaults may change between releases. Feedback is very welcome.
@@ -39,6 +43,10 @@ features:
 
 <div class="problem-layout">
 <div class="problem-text">
+
+::: warning The numbers
+AI-assisted commits leak secrets at **3.2%** — twice the human baseline. In Copilot-active repos, the rate hits **6.4%**. AI-service credential leaks surged **81% year-over-year** in 2025. ([Source](https://blog.gitguardian.com/the-state-of-secrets-sprawl-2026-pr/))
+:::
 
 AI coding agents are transforming how we build software. By default, they have access to everything in your project — `.env` files, SSH keys, AWS credentials, and API tokens. Not maliciously, just helpfully.
 
@@ -125,9 +133,10 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 </div>
 
 <div class="cta-buttons">
-<a href="/agento-patronum/getting-started/installation" class="cta-secondary">Installation</a>
-<a href="/agento-patronum/getting-started/default-protections" class="cta-secondary">See default protections</a>
-<a href="/agento-patronum/internals/how-it-works" class="cta-secondary">How it works</a>
+<a :href="withBase('/getting-started/installation')" class="cta-secondary">Installation</a>
+<a :href="withBase('/getting-started/default-protections')" class="cta-secondary">See default protections</a>
+<a :href="withBase('/internals/how-it-works')" class="cta-secondary">How it works</a>
+<a :href="withBase('/internals/why-patronum')" class="cta-secondary">Why patronum</a>
 </div>
 </div>
 

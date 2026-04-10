@@ -20,11 +20,14 @@ const configFile = path.join(process.env.HOME || '', '.claude', 'patronum', 'pat
 let pass = 0;
 let fail = 0;
 
+// Passes JSON via stdin option instead of shell interpolation to prevent
+// shell injection when input contains quotes or metacharacters.
+// See: https://owasp.org/www-community/attacks/Command_Injection
 function runHookTest({ name, hook, input, expect }) {
-  const json = JSON.stringify(input).replace(/'/g, "'\\''");
   let actualExit = 0;
   try {
-    execSync(`echo '${json}' | node "${hook}"`, {
+    execSync(`node "${hook}"`, {
+      input: JSON.stringify(input),
       stdio: ['pipe', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -41,6 +44,8 @@ function runHookTest({ name, hook, input, expect }) {
   }
 }
 
+let installFail = 0;
+
 function checkInstall(description, result, detail) {
   if (result === 'pass') {
     console.log(`  PASS: ${description}`);
@@ -55,7 +60,6 @@ console.log('');
 
 // ── Installation Check ────────────────────────────────────────────────────────
 console.log('── Installation Check ──────────────────────────────────────────────────────');
-let installFail = 0;
 
 if (process.env.CLAUDE_PLUGIN_ROOT) {
   console.log(`  INFO: CLAUDE_PLUGIN_ROOT set → ${pluginRoot}`);

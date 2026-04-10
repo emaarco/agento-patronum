@@ -78,10 +78,68 @@
       "source": "default"
     },
     {
+      "pattern": "**/*.p12",
+      "type": "glob",
+      "reason": "PKCS#12 keystores contain private keys and certificates",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "**/*.pfx",
+      "type": "glob",
+      "reason": "PFX files contain private keys and certificates",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.netrc",
+      "type": "glob",
+      "reason": "Netrc file may contain login credentials",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.git-credentials",
+      "type": "glob",
+      "reason": "Git credentials store contains passwords or tokens",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "~/.gnupg/*",
+      "type": "glob",
+      "reason": "GnuPG directory contains private keys and trust data",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
       "pattern": "Bash(printenv)",
       "type": "glob",
       "reason": "Exposes all environment variables including secrets",
       "addedAt": "2026-04-08T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "Bash(env)",
+      "type": "glob",
+      "match": "exact",
+      "reason": "Dumps all environment variables including secrets",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "Bash(export -p)",
+      "type": "glob",
+      "reason": "Lists exported variables which may include secrets",
+      "addedAt": "2026-04-10T00:00:00Z",
+      "source": "default"
+    },
+    {
+      "pattern": "Bash(set)",
+      "type": "glob",
+      "match": "exact",
+      "reason": "Dumps all shell variables including secrets",
+      "addedAt": "2026-04-10T00:00:00Z",
       "source": "default"
     }
   ],

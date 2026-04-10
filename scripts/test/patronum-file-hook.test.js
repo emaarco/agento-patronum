@@ -133,6 +133,84 @@ describe('enforceFile', () => {
     });
   });
 
+  describe('Glob tool', () => {
+    it('blocks when path targets file inside protected directory', () => {
+      const r = enforceFile(
+        { tool_name: 'Glob', tool_input: { pattern: '*', path: `${HOME}/.ssh/config` } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, true);
+      strictEqual(r.pattern, '~/.ssh/*');
+    });
+
+    it('blocks when pattern would enumerate .env files', () => {
+      const r = enforceFile(
+        { tool_name: 'Glob', tool_input: { pattern: '**/.env*' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, true);
+    });
+
+    it('blocks when pattern matches .env exactly', () => {
+      const r = enforceFile(
+        { tool_name: 'Glob', tool_input: { pattern: '**/.env' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, true);
+    });
+
+    it('blocks when pattern would find .pem files', () => {
+      const r = enforceFile(
+        { tool_name: 'Glob', tool_input: { pattern: '**/*.pem' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, true);
+    });
+
+    it('allows safe glob pattern', () => {
+      const r = enforceFile(
+        { tool_name: 'Glob', tool_input: { pattern: '**/*.js', path: '/project' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, false);
+    });
+
+    it('allows when no pattern', () => {
+      const r = enforceFile(
+        { tool_name: 'Glob', tool_input: {} },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, false);
+    });
+  });
+
+  describe('Grep tool', () => {
+    it('blocks when path targets .env', () => {
+      const r = enforceFile(
+        { tool_name: 'Grep', tool_input: { pattern: 'SECRET', path: '/project/.env' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, true);
+      strictEqual(r.pattern, '**/.env');
+    });
+
+    it('blocks when path targets .pem file', () => {
+      const r = enforceFile(
+        { tool_name: 'Grep', tool_input: { pattern: 'key', path: '/etc/ssl/server.pem' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, true);
+    });
+
+    it('allows safe path', () => {
+      const r = enforceFile(
+        { tool_name: 'Grep', tool_input: { pattern: 'TODO', path: '/project/src' } },
+        ENTRIES, HOME,
+      );
+      strictEqual(r.blocked, false);
+    });
+  });
+
   describe('edge cases', () => {
     it('allows when no tool_name', () => {
       const r = enforceFile({}, ENTRIES, HOME);
@@ -141,7 +219,7 @@ describe('enforceFile', () => {
 
     it('allows unknown tool names', () => {
       const r = enforceFile(
-        { tool_name: 'Glob', tool_input: { file_path: '/project/.env' } },
+        { tool_name: 'FooTool', tool_input: { file_path: '/project/.env' } },
         ENTRIES, HOME,
       );
       strictEqual(r.blocked, false);

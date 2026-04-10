@@ -27,15 +27,69 @@ function extractFilePaths(input) {
       return toolInput.file_path ? [toolInput.file_path] : [];
     case 'MultiEdit':
       return (toolInput.edits || []).map((e) => e.file_path).filter(Boolean);
+    case 'Glob':
+    case 'Grep':
+      return toolInput.path ? [toolInput.path] : [];
     default:
       return [];
   }
+}
+
+/**
+ * For Glob tool: check if the requested glob pattern would enumerate
+ * protected files. Tests each protected pattern's basename against the
+ * Glob tool's pattern using our own glob matcher.
+ */
+function enforceGlobPattern(input, entries, home) {
+  const toolName = input.tool_name || '';
+  if (toolName !== 'Glob') return { blocked: false };
+
+  const globPattern = (input.tool_input && input.tool_input.pattern) || '';
+  if (!globPattern) return { blocked: false };
+
+  home = home || process.env.HOME || '';
+
+  for (const entry of entries) {
+    if (!entry.pattern || entry.pattern.startsWith('Bash(')) continue;
+
+    // Expand the protected pattern and extract its basename for comparison.
+    const expanded = entry.pattern.replace(/^~/, home);
+    const protectedBase = path.basename(expanded);
+
+    // Extract the basename from the Glob pattern for comparison.
+    const globBase = path.basename(globPattern);
+
+    // Check if the Glob pattern could match the protected pattern's basename.
+    // e.g. Glob pattern "**/.env*" basename ".env*" matches protected ".env"
+    if (matchGlob(protectedBase, globBase, home)) {
+      return {
+        blocked: true,
+        tool: 'Glob',
+        target: `Glob(${globPattern})`,
+        pattern: entry.pattern,
+        reason: entry.reason || 'Glob pattern would enumerate protected files',
+      };
+    }
+
+    // Also check if the full Glob pattern matches the full protected pattern.
+    if (matchGlob(expanded, globPattern, home)) {
+      return {
+        blocked: true,
+        tool: 'Glob',
+        target: `Glob(${globPattern})`,
+        pattern: entry.pattern,
+        reason: entry.reason || 'Glob pattern would enumerate protected files',
+      };
+    }
+  }
+  return { blocked: false };
 }
 
 function enforceFile(input, entries, home) {
   const toolName = input.tool_name || '';
   if (!toolName) return { blocked: false };
 
+  // Check file paths (works for Read/Write/Edit/MultiEdit/Glob/Grep)
   const filePaths = extractFilePaths(input);
   for (const filePath of filePaths) {
     for (const entry of entries) {
@@ -51,6 +105,11 @@ function enforceFile(input, entries, home) {
       }
     }
   }
+
+  // For Glob tool, also check if the pattern itself would enumerate protected files
+  const globResult = enforceGlobPattern(input, entries, home);
+  if (globResult.blocked) return globResult;
+
   return { blocked: false };
 }
 
@@ -92,4 +151,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { enforceFile, extractFilePaths };
+module.exports = { enforceFile, enforceGlobPattern, extractFilePaths };

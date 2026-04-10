@@ -8,6 +8,7 @@
 'use strict';
 
 const fs = require('fs');
+const { matchGlob } = require('./lib/matching');
 const { resolveConfig, validateConfig, loadAllEntries } = require('./lib/config');
 const { parseStdin } = require('./lib/io');
 const { logViolation } = require('./lib/logging');
@@ -23,7 +24,8 @@ function enforceBash(input, entries) {
     if (!entry.pattern.startsWith('Bash(') || !entry.pattern.endsWith(')')) continue;
 
     const blockedCmd = entry.pattern.slice(5, -1);
-    if (command === blockedCmd || command.startsWith(blockedCmd + ' ')) {
+    const exactOnly = entry.match === 'exact';
+    if (command === blockedCmd || (!exactOnly && command.startsWith(blockedCmd + ' '))) {
       return {
         blocked: true,
         tool: 'Bash',
@@ -31,6 +33,49 @@ function enforceBash(input, entries) {
         pattern: entry.pattern,
         reason: entry.reason || '',
       };
+    }
+  }
+  return { blocked: false };
+}
+
+// Strip quoted strings from a shell command to avoid false positives on
+// file-like tokens inside string arguments (e.g. --body "see .env for info").
+function stripQuoted(cmd) {
+  return cmd.replace(/"[^"]*"|'[^']*'/g, '""');
+}
+
+const FILE_TOKEN_RE = /(?:\/|~\/|\.\/)[^\s;|&><"'`$()]+|(?:^|\s)(\.env[^\s;|&><"'`$()]*)/g;
+
+// Cross-reference defense: the Bash tool receives the full command string, so
+// "cat .env" or "cat ~/.ssh/id_rsa" would bypass file-only pattern matching.
+// Extracts file-path-like tokens and checks them against file glob patterns.
+// See: https://cwe.mitre.org/data/definitions/78.html (OS Command Injection)
+function enforceBashFiles(input, entries, home) {
+  const command = (input.tool_input && input.tool_input.command) || '';
+  if (!command) return { blocked: false };
+
+  const fileEntries = entries.filter(e => e.pattern && !e.pattern.startsWith('Bash('));
+  if (fileEntries.length === 0) return { blocked: false };
+
+  const stripped = stripQuoted(command);
+  const tokens = [];
+  let m;
+  FILE_TOKEN_RE.lastIndex = 0;
+  while ((m = FILE_TOKEN_RE.exec(stripped)) !== null) {
+    tokens.push((m[1] || m[0]).trim());
+  }
+
+  for (const token of tokens) {
+    for (const entry of fileEntries) {
+      if (matchGlob(token, entry.pattern, home)) {
+        return {
+          blocked: true,
+          tool: 'Bash',
+          target: `Bash(${command})`,
+          pattern: entry.pattern,
+          reason: entry.reason || 'File path in command matches protected pattern',
+        };
+      }
     }
   }
   return { blocked: false };
@@ -60,7 +105,8 @@ if (require.main === module) {
   const entries = loadAllEntries(config);
 
   parseStdin().then((input) => {
-    const result = enforceBash(input, entries);
+    const cmdResult = enforceBash(input, entries);
+    const result = cmdResult.blocked ? cmdResult : enforceBashFiles(input, entries, process.env.HOME);
 
     if (result.blocked) {
       logViolation(config.logFile, { tool: result.tool, target: result.target, pattern: result.pattern });
@@ -74,4 +120,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { enforceBash };
+module.exports = { enforceBash, enforceBashFiles };

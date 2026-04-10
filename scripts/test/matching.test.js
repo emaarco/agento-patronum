@@ -81,4 +81,28 @@ describe('matchGlob', () => {
     strictEqual(matchGlob('/home/testuser/.npmrc', '~/.npmrc', home), true);
     strictEqual(matchGlob('/home/testuser/.pypirc', '~/.npmrc', home), false);
   });
+
+  it('canonicalizes path traversal with ../', () => {
+    strictEqual(matchGlob('/project/sub/../../.env', '**/.env', home), true);
+    strictEqual(matchGlob('/project/sub/../.env.local', '**/.env.*', home), true);
+  });
+
+  it('canonicalizes dot segments', () => {
+    strictEqual(matchGlob('/home/testuser/.ssh/./id_rsa', '~/.ssh/*', home), true);
+  });
+
+  it('handles case-insensitive matching on macOS', () => {
+    if (process.platform === 'darwin') {
+      strictEqual(matchGlob('/project/.ENV', '**/.env', home), true);
+      strictEqual(matchGlob('/project/.Env.Local', '**/.env.*', home), true);
+    }
+  });
+});
+
+describe('globTest — ReDoS prevention', () => {
+  it('handles collapsed consecutive stars without hanging', () => {
+    const start = Date.now();
+    globTest('short-string', '*****');
+    strictEqual(Date.now() - start < 100, true);
+  });
 });

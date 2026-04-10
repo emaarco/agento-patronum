@@ -30,7 +30,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Read|Write|Edit|MultiEdit",
+        "matcher": "Read|Write|Edit|MultiEdit|Glob|Grep",
         "hooks": [
           {
             "type": "command",

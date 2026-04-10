@@ -25,6 +25,10 @@ features:
     details: Uses PreToolUse hooks — an explicit enforcement layer you own and can verify. Every blocked action is logged. Stack-aware suggestions included.
 ---
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 <div class="early-version-banner">
   Early version — agento-patronum is under active development (v0.1.0). Features and defaults may change between releases. Feedback is very welcome.
 </div>
@@ -129,10 +133,10 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 </div>
 
 <div class="cta-buttons">
-<a href="/agento-patronum/getting-started/installation" class="cta-secondary">Installation</a>
-<a href="/agento-patronum/getting-started/default-protections" class="cta-secondary">See default protections</a>
-<a href="/agento-patronum/internals/how-it-works" class="cta-secondary">How it works</a>
-<a href="/agento-patronum/internals/why-patronum" class="cta-secondary">Why patronum</a>
+<a :href="withBase('/getting-started/installation')" class="cta-secondary">Installation</a>
+<a :href="withBase('/getting-started/default-protections')" class="cta-secondary">See default protections</a>
+<a :href="withBase('/internals/how-it-works')" class="cta-secondary">How it works</a>
+<a :href="withBase('/internals/why-patronum')" class="cta-secondary">Why patronum</a>
 </div>
 </div>
 

@@ -20,7 +20,7 @@ The trend is clear: as AI writes more code, more secrets end up where they shoul
 
 Most tools — including Claude Code — offer built-in access controls like `permissions.deny` in `settings.json`. These may well work correctly. But there's a fundamental difference between a rule you configure and hope is interpreted the way you expect, and code you own and can observe executing.
 
-With `settings.json` deny rules, you write a pattern and trust the runtime to enforce it. You can't see how it's interpreted. You can't verify it ran. If something slips through, there's no log to tell you what happened. [Community reports](https://github.com/anthropics/claude-code/issues/6699) have raised questions about edge cases — but even without those reports, the core argument stands:
+With `settings.json` deny rules, you write a pattern and trust the runtime to enforce it. You can't see how it's interpreted. You can't verify it ran. If something slips through, there's no log to tell you what happened. [Community reports](/internals/why-hooks#the-problem-with-settingsjson) have raised questions about edge cases — across file reads, writes, Bash commands, sub-agents, and symlink traversal. But even without those reports, the core argument stands:
 
 **Hooks give you code you control.** Every interception is explicit. Every blocked call is logged. You can read the source, verify the behavior, and know exactly what happened. That's a different kind of confidence than trusting a black-box rule engine.
 
@@ -28,7 +28,7 @@ With `settings.json` deny rules, you write a pattern and trust the runtime to en
 
 agento-patronum is deliberately minimal. That simplicity is the point.
 
-- **No build step** — pure Node.js skills and shell scripts. Nothing to compile, no toolchain to install.
+- **No build step** — shell scripts and AI agent skills. Nothing to compile, no toolchain to install.
 - **No daemon** — runs only when Claude Code runs. Nothing in your background processes.
 - **No account** — no signup, no API key, no telemetry, no data collection.
 - **No data leaves your machine** — everything is local pattern matching against a JSON file.
@@ -40,14 +40,14 @@ It should work the same way in a personal side project and in a 500-engineer mon
 
 | Tool | Approach | Build required? | Pre-read blocking? |
 |------|----------|-----------------|---------------------|
-| **agento-patronum** | PreToolUse hooks, JSON config, marketplace plugin | No — pure Node.js | Yes |
+| **agento-patronum** | PreToolUse hooks, JSON config, marketplace plugin | No | Yes |
 | [kornysietsma/claude-code-permissions-hook](https://github.com/kornysietsma/claude-code-permissions-hook) | PreToolUse hooks, regex rules, audit log | Yes — Rust build step | Yes |
 | [sgasser/claude-code-security-hook](https://gist.github.com/sgasser/efeb186bad7e68c146d6692ec05c1a57) | Single-file hook, credential patterns | No | Yes |
 | GitGuardian / TruffleHog / gitleaks | Scan commits and CI pipelines for secrets | Varies | No — post-write only |
 | [Lasso claude-hooks](https://github.com/anthropics/claude-code/discussions/8944) | Prompt injection defense | Varies | Different threat model |
 | [claude-code-safety-net](https://github.com/anthropics/claude-code/discussions/8944) | Blocks destructive commands | No | Different threat model |
 
-The key differentiator isn't just marketplace availability — it's that patronum requires nothing beyond what Claude Code already guarantees (Node.js), while giving you the same explicit enforcement as tools that need a build step.
+The key differentiator isn't just marketplace availability — it's that patronum requires nothing beyond Node.js (already available in Claude Code), while giving you the same explicit enforcement as tools that need a build step.
 
 ## Further reading
 

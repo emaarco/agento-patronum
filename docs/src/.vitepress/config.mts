@@ -1,6 +1,11 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
+  vite: {
+    server: {
+      allowedHosts: true,
+    },
+  },
   title: 'agento-patronum',
   appearance: false,
   titleTemplate: false,

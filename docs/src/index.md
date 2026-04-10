@@ -16,7 +16,7 @@ hero:
 features:
   - icon: "\uD83D\uDD12"
     title: No Build, No Daemon, No Account
-    details: Pure Node.js skills and shell scripts. Nothing to compile, nothing running in the background, no signup required. Two commands to install.
+    details: Shell scripts and AI agent skills. Nothing to compile, nothing running in the background, no signup required. Two commands to install.
   - icon: "\uD83D\uDEE1\uFE0F"
     title: Nothing Leaves Your Machine
     details: Local pattern matching against a JSON config file. No cloud, no telemetry, no API calls. Code you can audit in a few minutes.

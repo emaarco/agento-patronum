@@ -1,7 +1,7 @@
 ---
 name: patronum-dev-preview
 description: "Start a public tunnel to preview the docs site from any device."
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Bash(cd * && npx *), Bash(npx *), Bash(kill *), Bash(pkill *)
 ---
 

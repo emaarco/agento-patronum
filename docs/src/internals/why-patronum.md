@@ -28,26 +28,13 @@ With `settings.json` deny rules, you write a pattern and trust the runtime to en
 
 agento-patronum is deliberately minimal. That simplicity is the point.
 
-- **No build step** — shell scripts and AI agent skills. Nothing to compile, no toolchain to install.
+- **No build step** — Node.js scripts and AI agent skills. Nothing to compile, no toolchain to install.
 - **No daemon** — runs only when Claude Code runs. Nothing in your background processes.
 - **No account** — no signup, no API key, no telemetry, no data collection.
 - **No data leaves your machine** — everything is local pattern matching against a JSON file.
 - **Two commands to install** — marketplace add + plugin install. Done.
 
 It should work the same way in a personal side project and in a 500-engineer monorepo — without any extra setup or configuration overhead. Config is a single JSON file. Code you can audit in a few minutes.
-
-## How it compares
-
-| Tool | Approach | Build required? | Pre-read blocking? |
-|------|----------|-----------------|---------------------|
-| **agento-patronum** | PreToolUse hooks, JSON config, marketplace plugin | No | Yes |
-| [kornysietsma/claude-code-permissions-hook](https://github.com/kornysietsma/claude-code-permissions-hook) | PreToolUse hooks, regex rules, audit log | Yes — Rust build step | Yes |
-| [sgasser/claude-code-security-hook](https://gist.github.com/sgasser/efeb186bad7e68c146d6692ec05c1a57) | Single-file hook, credential patterns | No | Yes |
-| GitGuardian / TruffleHog / gitleaks | Scan commits and CI pipelines for secrets | Varies | No — post-write only |
-| [Lasso claude-hooks](https://github.com/anthropics/claude-code/discussions/8944) | Prompt injection defense | Varies | Different threat model |
-| [claude-code-safety-net](https://github.com/anthropics/claude-code/discussions/8944) | Blocks destructive commands | No | Different threat model |
-
-The key differentiator isn't just marketplace availability — it's that patronum requires nothing beyond Node.js (already available in Claude Code), while giving you the same explicit enforcement as tools that need a build step.
 
 ## Further reading
 

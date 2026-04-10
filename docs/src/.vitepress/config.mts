@@ -16,6 +16,7 @@ export default defineConfig({
 
     nav: [
       { text: 'Get Started', link: '/getting-started/installation' },
+      { text: 'Why patronum', link: '/internals/why-patronum' },
       { text: 'Skills', link: '/commands/' },
       { text: 'How It Works', link: '/internals/how-it-works' },
     ],
@@ -51,6 +52,7 @@ export default defineConfig({
       {
         text: 'Internals',
         items: [
+          { text: 'Why patronum', link: '/internals/why-patronum' },
           { text: 'How It Works', link: '/internals/how-it-works' },
           { text: 'Why Hooks', link: '/internals/why-hooks' },
           { text: 'Log Format', link: '/internals/log-format' },

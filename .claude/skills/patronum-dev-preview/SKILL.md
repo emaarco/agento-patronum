@@ -38,5 +38,4 @@ npx tunnelmole <port>
 
 ### 4. Report
 
-Show the user the public HTTPS URL from tunnelmole output.
-Tell them to open it on their phone or any device.
+Show the user the public HTTPS URL from tunnelmole output as a plain URL (no markdown formatting, no bold, no stars). Tell them to open it on their phone or any device.

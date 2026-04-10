@@ -1,13 +1,13 @@
 ---
-name: patronum-dev-preview
-description: "Start a public tunnel to preview the docs site from any device."
+name: patronum-dev-remote-preview
+description: "Preview docs remotely (e.g. via dispatch or mobile) when not at the machine running the agent. Starts a public tunnel to the local docs dev server."
 disable-model-invocation: false
 allowed-tools: Bash(cd * && npx *), Bash(npx *), Bash(kill *), Bash(pkill *)
 ---
 
-# Skill: patronum-dev-preview
+# Skill: patronum-dev-remote-preview
 
-Start VitePress dev server with a public tunnel for mobile/remote preview.
+Preview docs when working remotely (e.g. via dispatch or Claude mobile app) and you don't have direct access to the machine running the agent. Starts a VitePress dev server and exposes it via a public tunnel.
 
 ## Steps
 

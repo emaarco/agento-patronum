@@ -92,6 +92,38 @@ describe('enforceBash', () => {
     strictEqual(r.blocked, false);
   });
 
+  it('blocks command followed by pipe operator', () => {
+    const r = enforceBash(
+      { tool_input: { command: 'printenv|grep SECRET' } },
+      ENTRIES,
+    );
+    strictEqual(r.blocked, true);
+  });
+
+  it('blocks command followed by semicolon', () => {
+    const r = enforceBash(
+      { tool_input: { command: 'printenv;cat file' } },
+      ENTRIES,
+    );
+    strictEqual(r.blocked, true);
+  });
+
+  it('blocks command followed by &&', () => {
+    const r = enforceBash(
+      { tool_input: { command: 'printenv&&ls' } },
+      ENTRIES,
+    );
+    strictEqual(r.blocked, true);
+  });
+
+  it('blocks command followed by redirect', () => {
+    const r = enforceBash(
+      { tool_input: { command: 'printenv>out.txt' } },
+      ENTRIES,
+    );
+    strictEqual(r.blocked, true);
+  });
+
   it('respects match: exact — blocks bare command', () => {
     const entries = [{ pattern: 'Bash(env)', reason: 'env dump', match: 'exact' }];
     const r = enforceBash({ tool_input: { command: 'env' } }, entries);

@@ -25,7 +25,9 @@ function enforceBash(input, entries) {
 
     const blockedCmd = entry.pattern.slice(5, -1);
     const exactOnly = entry.match === 'exact';
-    if (command === blockedCmd || (!exactOnly && command.startsWith(blockedCmd + ' '))) {
+    const follows = command.slice(blockedCmd.length);
+    const endsAtBoundary = follows === '' || /^[\s|;&><]/.test(follows);
+    if (command.startsWith(blockedCmd) && endsAtBoundary && (exactOnly ? follows === '' : true)) {
       return {
         blocked: true,
         tool: 'Bash',

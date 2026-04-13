@@ -67,8 +67,8 @@ if (require.main === module) {
 
   for (const cfg of activeConfigs) {
     if (!validateConfig(cfg)) {
-      // Fail-open: prompt hook should not block the user on bad config
-      process.exit(0);
+      process.stderr.write(`PATRONUM: Config '${cfg}' contains invalid JSON — blocking all operations until fixed.\n`);
+      process.exit(2);
     }
   }
 

@@ -5,7 +5,7 @@ const { strictEqual, deepStrictEqual, ok } = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { validateConfig, loadEntries, loadAllEntries } = require('../lib/config');
+const { validateConfig, loadEntries, loadAllEntries, requireHome, getActiveConfigs, validateActiveConfigs } = require('./config');
 
 let tmpDir;
 
@@ -98,5 +98,89 @@ describe('loadAllEntries', () => {
       localRepoConfig: '',
     };
     deepStrictEqual(loadAllEntries(config), []);
+  });
+});
+
+describe('requireHome', () => {
+  it('exits 2 when HOME is unset', () => {
+    const origHome = process.env.HOME;
+    const origExit = process.exit;
+    let exitCode;
+    process.exit = (code) => { exitCode = code; throw new Error('exit'); };
+    delete process.env.HOME;
+    try {
+      requireHome();
+    } catch {
+      // expected
+    }
+    process.env.HOME = origHome;
+    process.exit = origExit;
+    strictEqual(exitCode, 2);
+  });
+
+  it('does nothing when HOME is set', () => {
+    requireHome(); // should not throw
+  });
+});
+
+describe('getActiveConfigs', () => {
+  it('returns only configs that exist on disk', () => {
+    const existing = path.join(tmpDir, 'exists.json');
+    fs.writeFileSync(existing, '{}');
+    const config = {
+      userConfig: existing,
+      projConfig: path.join(tmpDir, 'nope.json'),
+      localRepoConfig: '',
+    };
+    const result = getActiveConfigs(config);
+    strictEqual(result.length, 1);
+    strictEqual(result[0], existing);
+  });
+
+  it('returns empty when no configs exist', () => {
+    const config = {
+      userConfig: path.join(tmpDir, 'nope.json'),
+      projConfig: '',
+      localRepoConfig: '',
+    };
+    deepStrictEqual(getActiveConfigs(config), []);
+  });
+});
+
+describe('validateActiveConfigs', () => {
+  it('passes for valid configs', () => {
+    const f = path.join(tmpDir, 'valid.json');
+    fs.writeFileSync(f, '{"entries":[]}');
+    validateActiveConfigs([f]); // should not throw
+  });
+
+  it('exits 2 for invalid config', () => {
+    const f = path.join(tmpDir, 'bad.json');
+    fs.writeFileSync(f, '{broken');
+    const origExit = process.exit;
+    let exitCode;
+    process.exit = (code) => { exitCode = code; throw new Error('exit'); };
+    try {
+      validateActiveConfigs([f]);
+    } catch {
+      // expected
+    }
+    process.exit = origExit;
+    strictEqual(exitCode, 2);
+  });
+
+  it('exits 0 for invalid config with failOpen', () => {
+    const f = path.join(tmpDir, 'bad.json');
+    fs.writeFileSync(f, '{broken');
+    const origExit = process.exit;
+    let exitCode;
+    process.exit = (code) => { exitCode = code; throw new Error('exit'); };
+    try {
+      validateActiveConfigs([f], { failOpen: true });
+    } catch {
+      // expected
+    }
+    process.exit = origExit;
+    strictEqual(exitCode, 0);
   });
 });

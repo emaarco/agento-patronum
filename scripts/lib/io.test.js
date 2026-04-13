@@ -13,7 +13,7 @@ function parseStdinWith(data) {
 
   // Re-require to get a fresh module that reads from our mock
   delete require.cache[require.resolve('../lib/io')];
-  const { parseStdin } = require('../lib/io');
+  const { parseStdin } = require('./io');
 
   return parseStdin().finally(() => {
     Object.defineProperty(process, 'stdin', { value: original, writable: true, configurable: true });

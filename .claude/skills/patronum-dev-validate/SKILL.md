@@ -58,9 +58,12 @@ else { console.error('No default patterns found'); process.exit(1); }
 node -e "
 const fs = require('fs');
 const glob = require('path');
-fs.readdirSync('scripts').filter(f => f.startsWith('patronum-') && f.endsWith('.js')).forEach(f => {
-  try { require('child_process').execSync('node -c scripts/' + f, {stdio:'pipe'}); console.log('scripts/' + f + ' OK'); }
-  catch(e) { console.error('scripts/' + f + ' FAIL'); process.exit(1); }
+['hooks', 'management', 'setup'].forEach(dir => {
+  fs.readdirSync('scripts/' + dir).filter(f => f.startsWith('patronum-') && f.endsWith('.js')).forEach(f => {
+    const p = 'scripts/' + dir + '/' + f;
+    try { require('child_process').execSync('node -c ' + p, {stdio:'pipe'}); console.log(p + ' OK'); }
+    catch(e) { console.error(p + ' FAIL'); process.exit(1); }
+  });
 });
 "
 ```
@@ -68,7 +71,7 @@ fs.readdirSync('scripts').filter(f => f.startsWith('patronum-') && f.endsWith('.
 ### 4. Script permissions
 
 ```bash
-for f in scripts/patronum-*.js; do
+for f in scripts/hooks/patronum-*.js scripts/management/patronum-*.js scripts/setup/patronum-*.js; do
   test -x "$f" && echo "$f executable OK"
 done
 ```

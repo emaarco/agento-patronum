@@ -29,9 +29,9 @@ jobs:
           done
 
       - name: Run unit tests
-        run: node --test scripts/test/*.test.js
+        run: node --test $(find scripts -name '*.test.js')
 
       - name: Run integration self-test
         run: |
-          CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-setup.js
-          CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
+          CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/setup/patronum-setup.js
+          CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js

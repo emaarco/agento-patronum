@@ -14,7 +14,7 @@ cd agento-patronum
 node -e "for(const f of ['plugin.json','marketplace.json','hooks.json','defaults/patronum.json']){JSON.parse(require('fs').readFileSync(f.includes('/')?f:'.claude-plugin/'+f,'utf8'))}" && echo "All JSON valid"
 
 # Run the full enforcement self-test
-CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js
 ```
 
 ## Testing the Plugin Install Flow Locally

@@ -17,5 +17,5 @@ const userConfig = path.join(process.env.HOME || '', '.claude', 'patronum', 'pat
 if (fs.existsSync(userConfig)) process.exit(0);
 
 // Lazy init: plugin was loaded but SessionStart hasn't fired yet.
-const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
-execSync(`node "${path.join(pluginRoot, 'scripts', 'patronum-setup.js')}"`, { stdio: 'inherit' });
+const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '../..');
+execSync(`node "${path.join(pluginRoot, 'scripts', 'setup', 'patronum-setup.js')}"`, { stdio: 'inherit' });

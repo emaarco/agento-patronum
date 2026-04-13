@@ -11,10 +11,10 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '..');
-const fileHook = path.join(pluginRoot, 'scripts', 'patronum-file-hook.js');
-const bashHook = path.join(pluginRoot, 'scripts', 'patronum-bash-hook.js');
-const promptHook = path.join(pluginRoot, 'scripts', 'patronum-prompt-hook.js');
+const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || path.resolve(__dirname, '../..');
+const fileHook = path.join(pluginRoot, 'scripts', 'hooks', 'patronum-file-hook.js');
+const bashHook = path.join(pluginRoot, 'scripts', 'hooks', 'patronum-bash-hook.js');
+const promptHook = path.join(pluginRoot, 'scripts', 'hooks', 'patronum-prompt-hook.js');
 const configFile = path.join(process.env.HOME || '', '.claude', 'patronum', 'patronum.json');
 
 let pass = 0;
@@ -68,10 +68,10 @@ if (process.env.CLAUDE_PLUGIN_ROOT) {
 }
 
 const expectedScripts = [
-  'patronum-file-hook.js', 'patronum-bash-hook.js', 'patronum-prompt-hook.js',
-  'patronum-setup.js', 'patronum-add.js', 'patronum-remove.js',
-  'patronum-list.js', 'patronum-verify.js', 'patronum-uninstall.js',
-  'patronum-install-check.js',
+  'hooks/patronum-file-hook.js', 'hooks/patronum-bash-hook.js', 'hooks/patronum-prompt-hook.js',
+  'setup/patronum-setup.js', 'setup/patronum-uninstall.js', 'setup/patronum-install-check.js',
+  'management/patronum-add.js', 'management/patronum-remove.js',
+  'management/patronum-list.js', 'management/patronum-verify.js',
 ];
 for (const script of expectedScripts) {
   const scriptPath = path.join(pluginRoot, 'scripts', script);
@@ -182,9 +182,9 @@ runHookTest({
   expect: 0,
 });
 
-// ── No-config fail-open test ─────────────────────────────────────────────────
+// ── No-config fail-closed test ───────────────────────────────────────────────
 console.log('');
-console.log('── Fail-Open Test ──────────────────────────────────────────────────────────');
+console.log('── Fail-Closed Test ────────────────────────────────────────────────────────');
 console.log('');
 
 const tempAbsent = configFile + '.verify-absent';
@@ -192,15 +192,15 @@ let skipNoConfig = false;
 try {
   fs.renameSync(configFile, tempAbsent);
 } catch {
-  console.debug('patronum: could not rename config for fail-open test');
+  console.debug('patronum: could not rename config for fail-closed test');
   skipNoConfig = true;
 }
 if (!skipNoConfig && !fs.existsSync(configFile)) {
   runHookTest({
-    name: 'No-config: allow all (fail-open)',
+    name: 'No-config: block all (fail-closed)',
     hook: fileHook,
     input: { tool_name: 'Read', tool_input: { file_path: `${home}/.ssh/id_rsa` } },
-    expect: 0,
+    expect: 2,
   });
   fs.renameSync(tempAbsent, configFile);
 } else {

@@ -7,7 +7,7 @@
 'use strict';
 
 const fs = require('fs');
-const { resolveConfig, loadEntries } = require('./lib/config');
+const { resolveConfig, loadEntries } = require('../lib/config');
 
 function pad(str, len) {
   return (str || '').padEnd(len);

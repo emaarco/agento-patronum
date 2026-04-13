@@ -40,7 +40,7 @@ node -e "JSON.parse(require('fs').readFileSync('hooks/hooks.json','utf8'))" && e
 node -e "JSON.parse(require('fs').readFileSync('defaults/patronum.json','utf8'))" && echo "patronum.json OK"
 
 # Script syntax
-for f in scripts/patronum-*.js; do
+for f in scripts/hooks/patronum-*.js scripts/management/patronum-*.js scripts/setup/patronum-*.js; do
   node -c "$f" && echo "$f OK"
 done
 ```
@@ -48,7 +48,7 @@ done
 ### 4. Run self-test
 
 ```bash
-CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js
 ```
 
 ### 5. Report

@@ -7,12 +7,11 @@
 
 'use strict';
 
-const fs = require('fs');
 const path = require('path');
-const { matchGlob } = require('./lib/matching');
-const { resolveConfig, validateConfig, loadAllEntries } = require('./lib/config');
-const { parseStdin } = require('./lib/io');
-const { logViolation } = require('./lib/logging');
+const { matchGlob } = require('../lib/matching');
+const { loadBlacklist } = require('../lib/config');
+const { parseStdin } = require('../lib/io');
+const { logViolation } = require('../lib/logging');
 
 // ── Enforce logic ───────────────────────────────────────────────────────
 
@@ -116,25 +115,7 @@ function enforceFile(input, entries, home) {
 // ── Hook entry point ────────────────────────────────────────────────────
 
 if (require.main === module) {
-  if (!process.env.HOME) {
-    process.stderr.write('PATRONUM: Cannot locate config directory — blocking all operations.\n');
-    process.exit(2);
-  }
-
-  const config = resolveConfig();
-  const activeConfigs = [config.userConfig, config.projConfig, config.localRepoConfig]
-    .filter(c => c && fs.existsSync(c));
-
-  if (activeConfigs.length === 0) process.exit(0);
-
-  for (const cfg of activeConfigs) {
-    if (!validateConfig(cfg)) {
-      process.stderr.write(`PATRONUM: Config '${cfg}' contains invalid JSON — blocking all operations until fixed.\n`);
-      process.exit(2);
-    }
-  }
-
-  const entries = loadAllEntries(config);
+  const { config, entries } = loadBlacklist();
 
   parseStdin().then((input) => {
     const result = enforceFile(input, entries, process.env.HOME);

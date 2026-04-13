@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const { strictEqual } = require('node:assert');
-const { globTest, matchGlob } = require('../lib/matching');
+const { globTest, matchGlob } = require('./matching');
 
 describe('globTest', () => {
   it('matches exact string', () => {

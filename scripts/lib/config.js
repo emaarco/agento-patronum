@@ -86,4 +86,42 @@ function loadAllEntries(config) {
   return entries;
 }
 
-module.exports = { resolveConfig, validateConfig, loadEntries, loadAllEntries };
+function requireHome() {
+  if (!process.env.HOME) {
+    process.stderr.write('PATRONUM: Cannot locate config directory — blocking all operations.\n');
+    process.exit(2);
+  }
+}
+
+function getActiveConfigs(config) {
+  return [config.userConfig, config.projConfig, config.localRepoConfig]
+    .filter(c => c && fs.existsSync(c));
+}
+
+function validateActiveConfigs(activeConfigs, { failOpen = false } = {}) {
+  for (const cfg of activeConfigs) {
+    if (!validateConfig(cfg)) {
+      if (failOpen) process.exit(0);
+      process.stderr.write(`PATRONUM: Config '${cfg}' contains invalid JSON — blocking all operations until fixed.\n`);
+      process.exit(2);
+    }
+  }
+}
+
+function loadBlacklist({ failOpen = false } = {}) {
+  requireHome();
+  const config = resolveConfig();
+  const activeConfigs = getActiveConfigs(config);
+  if (activeConfigs.length === 0) {
+    process.stderr.write('PATRONUM: No config found — blocking all operations. Run /patronum-verify to check setup.\n');
+    process.exit(2);
+  }
+  validateActiveConfigs(activeConfigs, { failOpen });
+  const entries = loadAllEntries(config);
+  return { config, entries };
+}
+
+module.exports = {
+  resolveConfig, validateConfig, loadEntries, loadAllEntries,
+  requireHome, getActiveConfigs, validateActiveConfigs, loadBlacklist,
+};

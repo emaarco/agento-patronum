@@ -2,7 +2,7 @@
 name: patronum-add
 argument-hint: "\"<pattern>\" [--reason \"reason\"]"
 description: "Add a file pattern or command to the agento-patronum protection list. Use when the user wants to block access to a file, path, or command."
-allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.js" *), Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"), AskUserQuestion
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-add.js" *), Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-list.js"), AskUserQuestion
 ---
 
 # Skill: patronum-add
@@ -27,12 +27,12 @@ Use `AskUserQuestion` to confirm the addition. Present:
 
 After the user confirms, run:
 ```bash
-node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-add.js" $ARGUMENTS
+node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-add.js" $ARGUMENTS
 ```
 
 ### 4. Present result
 
-Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"` and present the updated protection list as a markdown table:
+Run `node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-list.js"` and present the updated protection list as a markdown table:
 
 | Pattern | Source | Reason |
 |---------|--------|--------|

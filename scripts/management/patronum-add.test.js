@@ -5,7 +5,7 @@ const { strictEqual, ok } = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { addPattern } = require('../patronum-add');
+const { addPattern } = require('./patronum-add');
 
 let tmpDir;
 let configPath;

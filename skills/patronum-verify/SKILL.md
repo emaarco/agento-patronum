@@ -2,7 +2,7 @@
 name: patronum-verify
 description: "Run agento-patronum self-test to verify hook enforcement is working."
 disable-model-invocation: true
-allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-verify.js")
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-verify.js")
 ---
 
 # Skill: patronum-verify
@@ -11,7 +11,7 @@ Run the agento-patronum self-test.
 
 ## Steps
 
-1. Run: `node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-verify.js"`
+1. Run: `node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-verify.js"`
 2. Present the results to the user.
 3. If any tests fail, help the user diagnose the issue:
    - Check if `node` is available

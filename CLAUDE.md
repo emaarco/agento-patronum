@@ -48,7 +48,7 @@ Install via Claude Code marketplace:
 ### Validate
 ```bash
 # Run unit tests
-node --test 'scripts/**/*.test.js'
+node --test $(find scripts -name '*.test.js')
 
 # Run integration self-test
 CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/setup/patronum-setup.js
@@ -72,7 +72,7 @@ cd docs && npm run build  # Build for production
 ## Best Practices
 
 ### Verify After Each Change
-After modifying any script, run `node --test 'scripts/**/*.test.js'` for unit tests and `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js` for integration smoke tests.
+After modifying any script, run `node --test $(find scripts -name '*.test.js')` for unit tests and `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js` for integration smoke tests.
 
 ### Script Naming
 All scripts are prefixed with `patronum-` to avoid name collisions with other plugins.

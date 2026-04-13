@@ -17,17 +17,19 @@ Install via Claude Code marketplace:
 ### Plugin Structure
 - `.claude-plugin/plugin.json` — marketplace manifest
 - `hooks/hooks.json` — registers SessionStart + PreToolUse + UserPromptSubmit hooks
-- `scripts/patronum-*-hook.js` — self-contained hook scripts (file, bash, prompt)
-- `scripts/patronum-*.js` — CLI scripts (setup, add, remove, list, verify, uninstall, install-check)
-- `scripts/lib/config.js` — config resolution and loading
+- `scripts/hooks/patronum-*-hook.js` — enforcement hook scripts (file, bash, prompt)
+- `scripts/management/patronum-*.js` — blacklist CRUD + verification (add, remove, list, verify)
+- `scripts/setup/patronum-*.js` — lifecycle scripts (setup, uninstall, install-check)
+- `scripts/lib/config.js` — config resolution, loading, and blacklist helpers
 - `scripts/lib/matching.js` — glob pattern matching
 - `scripts/lib/io.js` — stdin reading utilities
 - `scripts/lib/logging.js` — violation logging
-- `scripts/test/*.test.js` — unit tests (node:test), one per source file
+- `scripts/**/*.test.js` — unit tests (node:test), co-located with implementation files
 - `scripts/validate-json.js` — JSON validation script (used in CI)
 - `defaults/patronum.json` — default protection patterns shipped with plugin
 - `skills/*/SKILL.md` — user-facing skills (per agentskills.io spec)
 - `.claude/skills/*/SKILL.md` — dev-only skills (installed with plugin, prefixed `patronum-dev-`)
+- `e2e/` — integration test scripts
 - `docs/` — VitePress documentation site
 
 ### How It Works
@@ -46,11 +48,11 @@ Install via Claude Code marketplace:
 ### Validate
 ```bash
 # Run unit tests
-node --test 'scripts/test/*.test.js'
+node --test 'scripts/**/*.test.js'
 
 # Run integration self-test
-CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-setup.js
-CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/setup/patronum-setup.js
+CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js
 
 # Validate all JSON
 node scripts/validate-json.js
@@ -70,7 +72,7 @@ cd docs && npm run build  # Build for production
 ## Best Practices
 
 ### Verify After Each Change
-After modifying any script, run `node --test 'scripts/test/*.test.js'` for unit tests and `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/patronum-verify.js` for integration smoke tests.
+After modifying any script, run `node --test 'scripts/**/*.test.js'` for unit tests and `CLAUDE_PLUGIN_ROOT="$(pwd)" node scripts/management/patronum-verify.js` for integration smoke tests.
 
 ### Script Naming
 All scripts are prefixed with `patronum-` to avoid name collisions with other plugins.

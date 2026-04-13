@@ -7,7 +7,7 @@
 'use strict';
 
 const fs = require('fs');
-const { resolveConfig } = require('./lib/config');
+const { resolveConfig } = require('../lib/config');
 
 function addPattern(configPath, pattern, reason) {
   const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));

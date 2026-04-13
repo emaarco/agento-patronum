@@ -1,7 +1,7 @@
 ---
 name: patronum-list
 description: "Show all patterns currently protected by agento-patronum."
-allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js")
+allowed-tools: Bash(node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-list.js")
 ---
 
 # Skill: patronum-list
@@ -12,7 +12,7 @@ Show all active protection patterns.
 
 ### 1. Fetch patterns
 
-Run: `node "${CLAUDE_PLUGIN_ROOT}/scripts/patronum-list.js"`
+Run: `node "${CLAUDE_PLUGIN_ROOT}/scripts/management/patronum-list.js"`
 
 ### 2. Present as themed table
 

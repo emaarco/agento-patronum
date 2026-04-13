@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * agento-patronum — Remove all patronum data files
- * Usage: node scripts/patronum-uninstall.js
+ * Usage: node scripts/setup/patronum-uninstall.js
  *
  * This script removes patronum config and log files only.
  * To also remove the plugin itself, run first:

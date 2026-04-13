@@ -6,9 +6,9 @@ agento-patronum registers hooks via Claude Code's plugin system. Three focused h
 
 | Hook event | Script | What it intercepts |
 |---|---|---|
-| `PreToolUse` (file) | `patronum-file-hook.js` | `Read`, `Write`, `Edit`, `MultiEdit` tool calls |
-| `PreToolUse` (Bash) | `patronum-bash-hook.js` | `Bash` tool calls |
-| `UserPromptSubmit` | `patronum-prompt-hook.js` | `@mention` references in user prompts |
+| `PreToolUse` (file) | `hooks/patronum-file-hook.js` | `Read`, `Write`, `Edit`, `MultiEdit`, `Glob`, `Grep` tool calls |
+| `PreToolUse` (Bash) | `hooks/patronum-bash-hook.js` | `Bash` tool calls |
+| `UserPromptSubmit` | `hooks/patronum-prompt-hook.js` | `@mention` references in user prompts |
 
 File patterns only ever run against file paths. Bash patterns only ever run against commands. This separation prevents false positives where a filename appearing as text in a shell argument would incorrectly trigger a file rule.
 

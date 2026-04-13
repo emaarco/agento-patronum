@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # agento-patronum — Integration tests
 # Launches real Claude sessions via `claude -p` to verify hook enforcement end-to-end.
-# Usage: bash scripts/patronum-test-integration.sh
+# Usage: bash e2e/patronum-test-integration.sh
 #
 # Prerequisites:
 #   - claude CLI installed and authenticated

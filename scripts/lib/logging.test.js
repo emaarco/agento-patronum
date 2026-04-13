@@ -5,7 +5,7 @@ const { strictEqual, ok } = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { logViolation } = require('../lib/logging');
+const { logViolation } = require('./logging');
 
 let tmpDir;
 

@@ -2,7 +2,7 @@
 
 const { describe, it } = require('node:test');
 const { strictEqual, ok } = require('node:assert');
-const { formatEntries } = require('../patronum-list');
+const { formatEntries } = require('./patronum-list');
 
 describe('formatEntries', () => {
   it('returns empty array for no entries', () => {

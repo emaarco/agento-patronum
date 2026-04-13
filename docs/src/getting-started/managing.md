@@ -95,6 +95,6 @@ This removes `~/.claude/patronum/` (user-scope data). If you installed at projec
 If step 1 already cleared the cache, clone the repo and run from source:
 ```bash
 git clone https://github.com/emaarco/agento-patronum.git
-node agento-patronum/scripts/patronum-uninstall.js
+node agento-patronum/scripts/setup/patronum-uninstall.js
 ```
 :::

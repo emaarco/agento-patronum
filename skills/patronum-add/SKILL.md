@@ -13,8 +13,25 @@ Add a protection pattern to the agento-patronum shield.
 
 ### 1. Parse input
 
-Parse the user's input from $ARGUMENTS. Expect a pattern and an optional `--reason`.
-If no reason is provided, generate a short reason based on what the pattern protects.
+Parse the user's input from `$ARGUMENTS`. Two input modes are supported:
+
+**Mode A — Exact glob or path** (e.g. `**/*.tfstate` or `~/.aws/credentials`):
+Use it directly as the pattern. If no `--reason` is provided, generate a short one.
+Always proceed to Step 2 to confirm with the user via `AskUserQuestion` before adding.
+
+**Mode B — Natural language intent** (e.g. `I want to protect my terraform state files`):
+Detect that the input is not a glob/path (no `/`, `*`, `~`, or `.**` characters, or it reads as a sentence).
+Derive one or more appropriate glob patterns from the intent. Common mappings:
+- "terraform state" → `**/*.tfstate`, `**/*.tfstate.backup`
+- "AWS credentials / secrets" → `~/.aws/credentials`, `~/.aws/config`
+- "environment variables / .env" → `**/.env`, `**/.env.*`
+- "private keys / SSH" → `**/*.pem`, `**/*.key`, `~/.ssh/*`
+- "docker credentials" → `~/.docker/config.json`
+- For anything not in the list above, reason from the technology/domain to derive a sensible glob.
+
+Present the derived pattern(s) and generated reason via `AskUserQuestion` (Step 2) so the user can approve before anything is written.
+
+**Both modes always go through the Step 2 confirmation — never skip it.**
 
 ### 2. Confirm with user
 

@@ -17,7 +17,6 @@ Parse the user's input from `$ARGUMENTS`. Two input modes are supported:
 
 **Mode A — Exact glob or path** (e.g. `**/*.tfstate` or `~/.aws/credentials`):
 Use it directly as the pattern. If no `--reason` is provided, generate a short one.
-Always proceed to Step 2 to confirm with the user via `AskUserQuestion` before adding.
 
 **Mode B — Natural language intent** (e.g. `I want to protect my terraform state files`):
 Detect that the input is not a glob/path (no `/`, `*`, `~`, or `.**` characters, or it reads as a sentence).
@@ -29,14 +28,10 @@ Derive one or more appropriate glob patterns from the intent. Common mappings:
 - "docker credentials" → `~/.docker/config.json`
 - For anything not in the list above, reason from the technology/domain to derive a sensible glob.
 
-Present the derived pattern(s) and generated reason via `AskUserQuestion` (Step 2) so the user can approve before anything is written.
-
-**Both modes always go through the Step 2 confirmation — never skip it.**
-
 ### 2. Confirm with user
 
-Use `AskUserQuestion` to confirm the addition. Present:
-- The pattern to be added
+Always confirm via `AskUserQuestion` — never skip this step regardless of input mode. Present:
+- The pattern(s) to be added
 - The reason (provided or generated)
 - A warning if the pattern looks overly broad (e.g. `*`, `**/*`, or very short globs)
 

@@ -60,6 +60,7 @@ export default defineConfig({
           { text: 'Why patronum', link: '/internals/why-patronum' },
           { text: 'How It Works', link: '/internals/how-it-works' },
           { text: 'Why Hooks', link: '/internals/why-hooks' },
+          { text: 'Security Considerations', link: '/internals/security-considerations' },
           { text: 'Log Format', link: '/internals/log-format' },
         ],
       },

@@ -12,7 +12,9 @@ Inside Claude Code, run:
 
 ## What it tests
 
-The verify command simulates tool calls and checks whether the hook blocks or allows them correctly:
+**Scope coverage** — checks whether patronum is installed at user scope (required for subagent protection). Warns if only project or local scope is detected. See [Security Considerations](/internals/security-considerations).
+
+**Hook enforcement** — simulates tool calls and checks whether the hook blocks or allows them correctly:
 
 - **Should block**: `~/.ssh/id_rsa`, `.env`, `~/.aws/credentials`, `printenv`, `.pem` files
 - **Should allow**: Safe file paths, safe commands

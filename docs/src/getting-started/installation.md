@@ -30,10 +30,16 @@ Claude Code plugins can be installed at three scopes — all three can be active
 | **project** | Everyone on the team | This repo only | Yes — shared with contributors | `.claude/patronum/patronum.json` |
 | **local** | You | This repo only | No — gitignored | `.claude/patronum/patronum.local.json` |
 
-::: info Which scope should I use?
-**Solo developer** — use **user scope** (the default). Install once, protected everywhere, nothing to commit.
+::: warning Subagents only see user-scope plugins
+Claude Code subagents run as independent processes that only inherit user-scope settings (`~/.claude/settings.json`). Plugins installed at project or local scope alone **do not protect subagent tool calls**. Install at user scope to ensure all agents are covered. See [Security Considerations](/internals/security-considerations) for details.
+:::
 
-**Team setup** — install at **project scope**. `.claude/settings.json` is committed so every contributor gets the plugin automatically, and the shared `.claude/patronum/patronum.json` ensures everyone enforces the same rules. Encourage contributors to also install at user scope so personal credential protections (SSH keys, AWS credentials) stay active across all their projects.
+::: info Which scope should I use?
+**Always install at user scope.** This is the foundation — hooks fire everywhere, including subagents, and your personal credentials (SSH keys, AWS credentials) are protected across all repos.
+
+**Team setup** — add **project scope** on top. `.claude/settings.json` is committed so every contributor gets the plugin automatically, and the shared `.claude/patronum/patronum.json` ensures everyone enforces the same rules. Contributors should still install at user scope individually for subagent protection.
+
+**Per-repo overrides** — add **local scope** on top for personal patterns in a specific repo (gitignored).
 :::
 
 ::: tip Repo configs are auto-created

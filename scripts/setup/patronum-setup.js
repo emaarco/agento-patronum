@@ -37,6 +37,20 @@ try {
   console.debug('patronum: not in a git repo, skipping repo-scope setup');
 }
 
+// Check user-scope install (global settings)
+const userSettingsPath = path.join(home, '.claude', 'settings.json');
+let userScopeInstalled = false;
+if (fs.existsSync(userSettingsPath)) {
+  try {
+    const userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+    const plugins = userSettings.enabledPlugins || {};
+    userScopeInstalled = Object.entries(plugins).some(([k, v]) => k.startsWith('agento-patronum') && v === true);
+  } catch { /* ignore parse errors */ }
+}
+
+let projectScopeDetected = false;
+let localScopeDetected = false;
+
 if (gitRoot) {
   const repoDir = path.join(gitRoot, '.claude', 'patronum');
 
@@ -48,6 +62,7 @@ if (gitRoot) {
       const plugins = settings.enabledPlugins || {};
       const isEnabled = Object.entries(plugins).some(([k, v]) => k.startsWith('agento-patronum') && v === true);
       if (isEnabled) {
+        projectScopeDetected = true;
         fs.mkdirSync(repoDir, { recursive: true });
         const projConfig = path.join(repoDir, 'patronum.json');
         if (!fs.existsSync(projConfig)) {
@@ -71,6 +86,7 @@ if (gitRoot) {
       const plugins = settings.enabledPlugins || {};
       const isEnabled = Object.entries(plugins).some(([k, v]) => k.startsWith('agento-patronum') && v === true);
       if (isEnabled) {
+        localScopeDetected = true;
         fs.mkdirSync(repoDir, { recursive: true });
         const localConfig = path.join(repoDir, 'patronum.local.json');
         if (!fs.existsSync(localConfig)) {
@@ -84,6 +100,15 @@ if (gitRoot) {
       console.debug('patronum: could not parse .claude/settings.local.json');
     }
   }
+}
+
+// Warn if only project/local scope — subagents won't be protected
+if ((projectScopeDetected || localScopeDetected) && !userScopeInstalled) {
+  console.log('');
+  console.log('agento-patronum: warning: installed at project/local scope only — subagents are not protected.');
+  console.log('agento-patronum: Claude Code subagents only inherit user-scope plugins.');
+  console.log('agento-patronum: fix: run /plugin install agento-patronum@emaarco (installs at user scope)');
+  console.log('agento-patronum: details: https://emaarco.github.io/agento-patronum/internals/security-considerations');
 }
 
 // Report status

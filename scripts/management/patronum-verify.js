@@ -116,11 +116,61 @@ if (installFail > 0) {
 
 console.log('');
 
+// ── Scope Coverage Check ────────────────────────────────────────────────────
+console.log('── Scope Coverage Check ────────────────────────────────────────────────────');
+
+const home = process.env.HOME || '';
+const userSettingsPath = path.join(home, '.claude', 'settings.json');
+let userScopeInstalled = false;
+if (fs.existsSync(userSettingsPath)) {
+  try {
+    const userSettings = JSON.parse(fs.readFileSync(userSettingsPath, 'utf8'));
+    const plugins = userSettings.enabledPlugins || {};
+    userScopeInstalled = Object.entries(plugins).some(([k, v]) => k.startsWith('agento-patronum') && v === true);
+  } catch { /* ignore parse errors */ }
+}
+
+let projectScopeInstalled = false;
+let localScopeInstalled = false;
+let gitRoot = '';
+try {
+  gitRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+} catch { /* not in a git repo */ }
+
+if (gitRoot) {
+  const settingsPath = path.join(gitRoot, '.claude', 'settings.json');
+  if (fs.existsSync(settingsPath)) {
+    try {
+      const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
+      const plugins = settings.enabledPlugins || {};
+      projectScopeInstalled = Object.entries(plugins).some(([k, v]) => k.startsWith('agento-patronum') && v === true);
+    } catch { /* ignore */ }
+  }
+  const localSettingsPath = path.join(gitRoot, '.claude', 'settings.local.json');
+  if (fs.existsSync(localSettingsPath)) {
+    try {
+      const settings = JSON.parse(fs.readFileSync(localSettingsPath, 'utf8'));
+      const plugins = settings.enabledPlugins || {};
+      localScopeInstalled = Object.entries(plugins).some(([k, v]) => k.startsWith('agento-patronum') && v === true);
+    } catch { /* ignore */ }
+  }
+}
+
+if (userScopeInstalled) {
+  console.log('  PASS: user-scope install detected — subagents are protected.');
+} else if (projectScopeInstalled || localScopeInstalled) {
+  console.log('  WARN: agento-patronum not installed at user scope — subagents are not protected.');
+  console.log('        Install at user scope: /plugin install agento-patronum@emaarco');
+  console.log('        Details: https://emaarco.github.io/agento-patronum/internals/security-considerations');
+} else {
+  console.log('  INFO: scope detection skipped (not in a git repo or no project/local settings found).');
+}
+
+console.log('');
+
 // ── Smoke Tests ──────────────────────────────────────────────────────────────
 // These verify the full hook pipeline (stdin → enforce → exit code).
 // Detailed pattern matching is tested in scripts/test/ via node:test.
-
-const home = process.env.HOME || '';
 
 console.log('── File Hook Smoke Tests ────────────────────────────────────────────────────');
 console.log('');

@@ -95,6 +95,12 @@ To close this gap, patronum registers a `UserPromptSubmit` hook that intercepts 
 
 It extracts every `@<path>` token, resolves each to an absolute path, and checks it against the same file patterns used by the file hook. If a match is found, the prompt is blocked with exit code 2 before Claude processes it.
 
+## Scope and subagents
+
+Hooks fire for the primary Claude Code agent process. Subagents, however, are independent processes that only inherit user-scope settings (`~/.claude/settings.json`). If patronum is installed only at project or local scope, subagent tool calls bypass all hooks entirely.
+
+Installing at user scope ensures hooks fire for subagents too. Config resolution still merges all three levels (user, project, local) — so project and local blacklists remain active even when the plugin activation comes from user scope. See [Security Considerations](/internals/security-considerations) for the full picture.
+
 ## Dependencies
 
 All hooks use only Node.js — no native dependencies, no npm packages. Node.js is already available wherever Claude Code runs.

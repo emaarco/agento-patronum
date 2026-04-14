@@ -52,12 +52,12 @@
 /* ── Early version banner ── */
 .early-version-banner {
   max-width: 900px;
-  margin: 1.25rem auto 0;
+  margin: 1.25rem auto 1.5rem;
   padding: 0.65rem 1rem;
   font-size: 0.85rem;
-  color: #92400e;
-  background: #fef3c7;
-  border: 1px solid #f59e0b;
+  color: #78716c;
+  background: #fafaf9;
+  border: 1px solid #e7e5e4;
   border-radius: 8px;
   /* Match VitePress container side padding */
   box-sizing: border-box;
@@ -65,7 +65,7 @@
 }
 
 .dark .early-version-banner {
-  color: #fde68a;
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.4);
+  color: #a8a29e;
+  background: rgba(120, 113, 108, 0.08);
+  border-color: rgba(120, 113, 108, 0.25);
 }

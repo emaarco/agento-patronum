@@ -4,11 +4,11 @@ The protection config is stored at `~/.claude/patronum/patronum.json`.
 
 ## Full schema
 
-The config file contains an array of protection entries and a version field:
+The config file contains a blacklist, a whitelist, and a version field:
 
 ```json
 {
-  "entries": [
+  "blacklist": [
     {
       "pattern": "**/.env",
       "type": "glob",
@@ -17,7 +17,16 @@ The config file contains an array of protection entries and a version field:
       "source": "default"
     }
   ],
-  "version": "1"
+  "whitelist": [
+    {
+      "pattern": "**/.env.example",
+      "type": "glob",
+      "reason": "Safe to read — no real secrets",
+      "addedAt": "2026-04-17T10:00:00Z",
+      "source": "user"
+    }
+  ],
+  "version": "2"
 }
 ```
 
@@ -25,10 +34,12 @@ The config file contains an array of protection entries and a version field:
 
 ### Entry fields
 
+Both `blacklist` and `whitelist` entries share the same structure:
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `pattern` | string | yes | Glob pattern or `Bash(<command>)` format |
-| `type` | string | yes | Always `"glob"` in v1 |
+| `type` | string | yes | Always `"glob"` |
 | `reason` | string | yes | Human-readable explanation |
 | `addedAt` | string | yes | ISO 8601 UTC timestamp |
 | `source` | string | yes | `"default"` (shipped) or `"user"` (added manually) |
@@ -37,8 +48,17 @@ The config file contains an array of protection entries and a version field:
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `entries` | array | List of protection entries |
-| `version` | string | Schema version (currently `"1"`) |
+| `blacklist` | array | Patterns that block agent access |
+| `whitelist` | array | Patterns that explicitly allow access (override blacklist) |
+| `version` | string | Schema version (`"2"`) |
+
+## Enforcement order
+
+1. If the target matches any **whitelist** pattern → **allow** (blacklist is skipped)
+2. If the target matches any **blacklist** pattern → **block**
+3. Otherwise → **allow**
+
+This lets you protect a broad pattern (e.g. `**/.env.*`) while carving out specific exceptions (e.g. `**/.env.example`).
 
 ## File location
 

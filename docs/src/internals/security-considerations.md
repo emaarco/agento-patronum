@@ -24,12 +24,12 @@ Run `/patronum-verify` to confirm your scope coverage.
 
 When patronum is installed at user scope, its hooks are registered in `~/.claude/settings.json` — the one settings file subagents inherit. The hooks fire for every tool call, including those made by subagents.
 
-**Project and local blacklists still work.** patronum's config resolution loads all three config levels by file path (user, project, local) regardless of which settings file activated the plugin. So a user-scope install gives you:
+**Project and local blacklists and whitelists still work.** patronum's config resolution loads all three config levels by file path (user, project, local) regardless of which settings file activated the plugin. So a user-scope install gives you:
 
 - Hooks fire everywhere — primary agent and subagents
-- User-scope blacklist (`~/.claude/patronum/patronum.json`) — always active
-- Project-scope blacklist (`.claude/patronum/patronum.json`) — active when present in the repo
-- Local-scope blacklist (`.claude/patronum/patronum.local.json`) — active when present in the repo
+- User-scope rules (`~/.claude/patronum/patronum.json`) — always active
+- Project-scope rules (`.claude/patronum/patronum.json`) — active when present in the repo
+- Local-scope rules (`.claude/patronum/patronum.local.json`) — active when present in the repo
 
 ### Recommended setup
 

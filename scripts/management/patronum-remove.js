@@ -12,11 +12,6 @@ const { resolveConfig } = require('../lib/config');
 function removePattern(configPath, pattern) {
   const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-  // Migration: v1 used `entries` key (all blacklist)
-  if (!data.blacklist && data.entries) {
-    data.blacklist = data.entries;
-    delete data.entries;
-  }
   data.blacklist = data.blacklist || [];
   data.whitelist = data.whitelist || [];
 

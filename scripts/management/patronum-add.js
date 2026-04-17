@@ -12,11 +12,6 @@ const { resolveConfig } = require('../lib/config');
 function addPattern(configPath, pattern, reason, { list = 'blacklist' } = {}) {
   const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-  // Migration: v1 used `entries` key (all blacklist)
-  if (!data.blacklist && data.entries) {
-    data.blacklist = data.entries;
-    delete data.entries;
-  }
   data.blacklist = data.blacklist || [];
   data.whitelist = data.whitelist || [];
 

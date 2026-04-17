@@ -1,7 +1,7 @@
 'use strict';
 
 const { describe, it, beforeEach, afterEach } = require('node:test');
-const { strictEqual, ok } = require('node:assert');
+const { strictEqual } = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
@@ -76,13 +76,4 @@ describe('removePattern', () => {
     JSON.parse(fs.readFileSync(configPath, 'utf8'));
   });
 
-  it('migrates v1 config on remove', () => {
-    fs.writeFileSync(configPath, JSON.stringify({ entries: [{ pattern: 'a' }, { pattern: 'b' }], version: '1' }, null, 2) + '\n');
-    const result = removePattern(configPath, 'a');
-    strictEqual(result.removed, true);
-    strictEqual(result.fromList, 'blacklist');
-    const data = readConfig();
-    ok(data.blacklist, 'should have blacklist key after migration');
-    strictEqual(data.blacklist.length, 1);
-  });
 });

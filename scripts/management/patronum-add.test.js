@@ -89,14 +89,4 @@ describe('addPattern', () => {
     JSON.parse(fs.readFileSync(configPath, 'utf8'));
   });
 
-  it('migrates v1 config on write', () => {
-    fs.writeFileSync(configPath, JSON.stringify({ entries: [{ pattern: 'old' }], version: '1' }, null, 2) + '\n');
-    const result = addPattern(configPath, '**/.env', '');
-    strictEqual(result.added, true);
-
-    const data = readConfig();
-    ok(data.blacklist, 'should have blacklist key after migration');
-    strictEqual(data.blacklist.length, 2);
-    strictEqual(data.blacklist[0].pattern, 'old');
-  });
 });

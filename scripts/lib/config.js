@@ -70,8 +70,7 @@ function validateConfig(configPath) {
 function loadEntries(configPath) {
   try {
     const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    // Migration: v1 used `entries` key (all blacklist); v2 uses `blacklist`/`whitelist`
-    const blacklist = data.blacklist || data.entries || [];
+    const blacklist = data.blacklist || [];
     const whitelist = data.whitelist || [];
     return { blacklist, whitelist };
   } catch {

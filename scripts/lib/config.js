@@ -111,14 +111,6 @@ function validateActiveConfigs(activeConfigs, { failOpen = false } = {}) {
       process.stderr.write(`PATRONUM: Config '${cfg}' contains invalid JSON — blocking all operations until fixed.\n`);
       process.exit(2);
     }
-    try {
-      const data = JSON.parse(fs.readFileSync(cfg, 'utf8'));
-      if (data.version !== '2') {
-        process.stderr.write(`PATRONUM: Config '${cfg}' is outdated (expected v2, got v${data.version || '1'}).\n`);
-        process.stderr.write('PATRONUM: Re-run setup or reinstall agento-patronum to upgrade — then re-add any custom patterns.\n');
-        process.exit(2);
-      }
-    } catch { /* already caught by validateConfig above */ }
   }
 }
 

@@ -23,22 +23,10 @@ const defaults = path.join(pluginRoot, 'defaults', 'patronum.json');
 // Ensure user config directory exists
 fs.mkdirSync(patronumDir, { recursive: true });
 
-// Initialise user config if missing, or overwrite if it uses the old v1 format
+// Initialise user config if missing
 if (!fs.existsSync(configFile)) {
   fs.copyFileSync(defaults, configFile);
   console.log('agento-patronum: first-time setup complete. Default protections installed.');
-} else {
-  try {
-    const existing = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-    if (existing.version !== '2') {
-      fs.copyFileSync(defaults, configFile);
-      console.log('agento-patronum: config updated to v2 format. Default protections restored — re-add any custom patterns.');
-    }
-  } catch {
-    // Unreadable config — overwrite to restore a valid state
-    fs.copyFileSync(defaults, configFile);
-    console.log('agento-patronum: config was unreadable. Default protections restored.');
-  }
 }
 
 // Detect project-scope or local-scope install and create the appropriate repo config

@@ -36,68 +36,99 @@ describe('validateConfig', () => {
 });
 
 describe('loadEntries', () => {
-  it('returns entries from valid config', () => {
+  it('returns blacklist and whitelist from v2 config', () => {
     const f = path.join(tmpDir, 'cfg.json');
+    const blacklist = [{ pattern: '**/.env', reason: 'test' }];
+    const whitelist = [{ pattern: '**/.env.example', reason: 'safe' }];
+    fs.writeFileSync(f, JSON.stringify({ blacklist, whitelist }));
+    const result = loadEntries(f);
+    deepStrictEqual(result.blacklist, blacklist);
+    deepStrictEqual(result.whitelist, whitelist);
+  });
+
+  it('migrates v1 config: treats entries as blacklist', () => {
+    const f = path.join(tmpDir, 'v1.json');
     const entries = [{ pattern: '**/.env', reason: 'test' }];
-    fs.writeFileSync(f, JSON.stringify({ entries }));
-    deepStrictEqual(loadEntries(f), entries);
+    fs.writeFileSync(f, JSON.stringify({ entries, version: '1' }));
+    const result = loadEntries(f);
+    deepStrictEqual(result.blacklist, entries);
+    deepStrictEqual(result.whitelist, []);
   });
 
-  it('returns [] on missing file', () => {
-    deepStrictEqual(loadEntries(path.join(tmpDir, 'nope.json')), []);
+  it('returns empty lists on missing file', () => {
+    const result = loadEntries(path.join(tmpDir, 'nope.json'));
+    deepStrictEqual(result.blacklist, []);
+    deepStrictEqual(result.whitelist, []);
   });
 
-  it('returns [] when entries key is absent', () => {
+  it('returns empty lists when keys are absent', () => {
     const f = path.join(tmpDir, 'empty.json');
     fs.writeFileSync(f, '{}');
-    deepStrictEqual(loadEntries(f), []);
+    const result = loadEntries(f);
+    deepStrictEqual(result.blacklist, []);
+    deepStrictEqual(result.whitelist, []);
   });
 
-  it('returns [] on invalid JSON', () => {
+  it('returns empty lists on invalid JSON', () => {
     const f = path.join(tmpDir, 'bad.json');
     fs.writeFileSync(f, '{broken');
-    deepStrictEqual(loadEntries(f), []);
+    const result = loadEntries(f);
+    deepStrictEqual(result.blacklist, []);
+    deepStrictEqual(result.whitelist, []);
   });
 });
 
 describe('loadAllEntries', () => {
-  it('merges entries from user + project configs', () => {
+  it('merges blacklists from user + project configs', () => {
     const userCfg = path.join(tmpDir, 'user.json');
     const projCfg = path.join(tmpDir, 'proj.json');
-    fs.writeFileSync(userCfg, JSON.stringify({ entries: [{ pattern: 'a' }] }));
-    fs.writeFileSync(projCfg, JSON.stringify({ entries: [{ pattern: 'b' }] }));
+    fs.writeFileSync(userCfg, JSON.stringify({ blacklist: [{ pattern: 'a' }], whitelist: [] }));
+    fs.writeFileSync(projCfg, JSON.stringify({ blacklist: [{ pattern: 'b' }], whitelist: [] }));
 
-    const config = {
-      userConfig: userCfg,
-      projConfig: projCfg,
-      localRepoConfig: '',
-    };
-    const result = loadAllEntries(config);
-    strictEqual(result.length, 2);
-    strictEqual(result[0].pattern, 'a');
-    strictEqual(result[1].pattern, 'b');
+    const config = { userConfig: userCfg, projConfig: projCfg, localRepoConfig: '' };
+    const { blacklist } = loadAllEntries(config);
+    strictEqual(blacklist.length, 2);
+    strictEqual(blacklist[0].pattern, 'a');
+    strictEqual(blacklist[1].pattern, 'b');
+  });
+
+  it('merges whitelists from multiple configs', () => {
+    const userCfg = path.join(tmpDir, 'user.json');
+    const projCfg = path.join(tmpDir, 'proj.json');
+    fs.writeFileSync(userCfg, JSON.stringify({ blacklist: [], whitelist: [{ pattern: 'w1' }] }));
+    fs.writeFileSync(projCfg, JSON.stringify({ blacklist: [], whitelist: [{ pattern: 'w2' }] }));
+
+    const config = { userConfig: userCfg, projConfig: projCfg, localRepoConfig: '' };
+    const { whitelist } = loadAllEntries(config);
+    strictEqual(whitelist.length, 2);
+    strictEqual(whitelist[0].pattern, 'w1');
+    strictEqual(whitelist[1].pattern, 'w2');
+  });
+
+  it('migrates v1 config entries as blacklist', () => {
+    const userCfg = path.join(tmpDir, 'user.json');
+    fs.writeFileSync(userCfg, JSON.stringify({ entries: [{ pattern: 'x' }], version: '1' }));
+
+    const config = { userConfig: userCfg, projConfig: '', localRepoConfig: '' };
+    const { blacklist, whitelist } = loadAllEntries(config);
+    strictEqual(blacklist.length, 1);
+    strictEqual(whitelist.length, 0);
   });
 
   it('skips missing configs gracefully', () => {
     const userCfg = path.join(tmpDir, 'user.json');
-    fs.writeFileSync(userCfg, JSON.stringify({ entries: [{ pattern: 'x' }] }));
+    fs.writeFileSync(userCfg, JSON.stringify({ blacklist: [{ pattern: 'x' }], whitelist: [] }));
 
-    const config = {
-      userConfig: userCfg,
-      projConfig: path.join(tmpDir, 'nope.json'),
-      localRepoConfig: '',
-    };
-    const result = loadAllEntries(config);
-    strictEqual(result.length, 1);
+    const config = { userConfig: userCfg, projConfig: path.join(tmpDir, 'nope.json'), localRepoConfig: '' };
+    const { blacklist } = loadAllEntries(config);
+    strictEqual(blacklist.length, 1);
   });
 
-  it('returns [] when no configs exist', () => {
-    const config = {
-      userConfig: path.join(tmpDir, 'nope1.json'),
-      projConfig: '',
-      localRepoConfig: '',
-    };
-    deepStrictEqual(loadAllEntries(config), []);
+  it('returns empty lists when no configs exist', () => {
+    const config = { userConfig: path.join(tmpDir, 'nope1.json'), projConfig: '', localRepoConfig: '' };
+    const { blacklist, whitelist } = loadAllEntries(config);
+    deepStrictEqual(blacklist, []);
+    deepStrictEqual(whitelist, []);
   });
 });
 

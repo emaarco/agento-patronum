@@ -12,19 +12,33 @@ const { resolveConfig } = require('../lib/config');
 function removePattern(configPath, pattern) {
   const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
-  const existing = (data.entries || []).find((e) => e.pattern === pattern);
-  if (!existing) {
-    return { removed: false, remaining: (data.entries || []).length };
+  // Migration: v1 used `entries` key (all blacklist)
+  if (!data.blacklist && data.entries) {
+    data.blacklist = data.entries;
+    delete data.entries;
+  }
+  data.blacklist = data.blacklist || [];
+  data.whitelist = data.whitelist || [];
+
+  let fromList = '';
+  if (data.blacklist.find((e) => e.pattern === pattern)) {
+    data.blacklist = data.blacklist.filter((e) => e.pattern !== pattern);
+    fromList = 'blacklist';
+  } else if (data.whitelist.find((e) => e.pattern === pattern)) {
+    data.whitelist = data.whitelist.filter((e) => e.pattern !== pattern);
+    fromList = 'whitelist';
   }
 
-  data.entries = data.entries.filter((e) => e.pattern !== pattern);
+  if (!fromList) {
+    return { removed: false, remaining: data.blacklist.length + data.whitelist.length };
+  }
 
   // Atomic write via tmp + rename
   const tmpFile = configPath + '.tmp';
   fs.writeFileSync(tmpFile, JSON.stringify(data, null, 2) + '\n');
   fs.renameSync(tmpFile, configPath);
 
-  return { removed: true, remaining: data.entries.length };
+  return { removed: true, fromList, remaining: data.blacklist.length + data.whitelist.length };
 }
 
 // ── CLI entry point ─────────────────────────────────────────────────────────
@@ -48,11 +62,11 @@ if (require.main === module) {
   const result = removePattern(config.activeConfig, pattern);
 
   if (!result.removed) {
-    console.log(`Pattern '${pattern}' not found in the protection list.`);
+    console.log(`Pattern '${pattern}' not found in blacklist or whitelist.`);
     process.exit(1);
   }
 
-  console.log(`Removed pattern: ${pattern}`);
+  console.log(`Removed pattern: ${pattern} (from ${result.fromList})`);
   console.log(`Remaining patterns: ${result.remaining}`);
 }
 

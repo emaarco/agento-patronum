@@ -70,20 +70,27 @@ function validateConfig(configPath) {
 function loadEntries(configPath) {
   try {
     const data = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-    return data.entries || [];
+    // Migration: v1 used `entries` key (all blacklist); v2 uses `blacklist`/`whitelist`
+    const blacklist = data.blacklist || data.entries || [];
+    const whitelist = data.whitelist || [];
+    return { blacklist, whitelist };
   } catch {
     console.debug('patronum: could not load entries from', configPath);
-    return [];
+    return { blacklist: [], whitelist: [] };
   }
 }
 
 function loadAllEntries(config) {
   const cfg = config || resolveConfig();
-  const entries = [];
-  if (fs.existsSync(cfg.userConfig)) entries.push(...loadEntries(cfg.userConfig));
-  if (cfg.projConfig && fs.existsSync(cfg.projConfig)) entries.push(...loadEntries(cfg.projConfig));
-  if (cfg.localRepoConfig && fs.existsSync(cfg.localRepoConfig)) entries.push(...loadEntries(cfg.localRepoConfig));
-  return entries;
+  const blacklist = [];
+  const whitelist = [];
+  for (const cfgPath of [cfg.userConfig, cfg.projConfig, cfg.localRepoConfig]) {
+    if (!cfgPath || !fs.existsSync(cfgPath)) continue;
+    const { blacklist: bl, whitelist: wl } = loadEntries(cfgPath);
+    blacklist.push(...bl);
+    whitelist.push(...wl);
+  }
+  return { blacklist, whitelist };
 }
 
 function requireHome() {
@@ -117,8 +124,8 @@ function loadBlacklist({ failOpen = false } = {}) {
     process.exit(2);
   }
   validateActiveConfigs(activeConfigs, { failOpen });
-  const entries = loadAllEntries(config);
-  return { config, entries };
+  const { blacklist, whitelist } = loadAllEntries(config);
+  return { config, blacklist, whitelist };
 }
 
 module.exports = {

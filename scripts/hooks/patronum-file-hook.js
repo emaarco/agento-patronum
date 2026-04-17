@@ -34,12 +34,20 @@ function extractFilePaths(input) {
   }
 }
 
+function isWhitelistedFile(filePath, whitelist, home) {
+  for (const entry of whitelist) {
+    if (!entry.pattern || entry.pattern.startsWith('Bash(')) continue;
+    if (matchGlob(filePath, entry.pattern, home)) return true;
+  }
+  return false;
+}
+
 /**
  * For Glob tool: check if the requested glob pattern would enumerate
  * protected files. Tests each protected pattern's basename against the
  * Glob tool's pattern using our own glob matcher.
  */
-function enforceGlobPattern(input, entries, home) {
+function enforceGlobPattern(input, blacklist, whitelist, home) {
   const toolName = input.tool_name || '';
   if (toolName !== 'Glob') return { blocked: false };
 
@@ -48,7 +56,7 @@ function enforceGlobPattern(input, entries, home) {
 
   home = home || process.env.HOME || '';
 
-  for (const entry of entries) {
+  for (const entry of blacklist) {
     if (!entry.pattern || entry.pattern.startsWith('Bash(')) continue;
 
     // Expand the protected pattern and extract its basename for comparison.
@@ -61,6 +69,7 @@ function enforceGlobPattern(input, entries, home) {
     // Check if the Glob pattern could match the protected pattern's basename.
     // e.g. Glob pattern "**/.env*" basename ".env*" matches protected ".env"
     if (matchGlob(protectedBase, globBase, home)) {
+      if (isWhitelistedFile(protectedBase, whitelist, home)) continue;
       return {
         blocked: true,
         tool: 'Glob',
@@ -72,6 +81,7 @@ function enforceGlobPattern(input, entries, home) {
 
     // Also check if the full Glob pattern matches the full protected pattern.
     if (matchGlob(expanded, globPattern, home)) {
+      if (isWhitelistedFile(expanded, whitelist, home)) continue;
       return {
         blocked: true,
         tool: 'Glob',
@@ -84,14 +94,15 @@ function enforceGlobPattern(input, entries, home) {
   return { blocked: false };
 }
 
-function enforceFile(input, entries, home) {
+function enforceFile(input, blacklist, whitelist, home) {
   const toolName = input.tool_name || '';
   if (!toolName) return { blocked: false };
 
   // Check file paths (works for Read/Write/Edit/MultiEdit/Glob/Grep)
   const filePaths = extractFilePaths(input);
   for (const filePath of filePaths) {
-    for (const entry of entries) {
+    if (isWhitelistedFile(filePath, whitelist, home)) continue;
+    for (const entry of blacklist) {
       if (!entry.pattern || entry.pattern.startsWith('Bash(')) continue;
       if (matchGlob(filePath, entry.pattern, home)) {
         return {
@@ -106,7 +117,7 @@ function enforceFile(input, entries, home) {
   }
 
   // For Glob tool, also check if the pattern itself would enumerate protected files
-  const globResult = enforceGlobPattern(input, entries, home);
+  const globResult = enforceGlobPattern(input, blacklist, whitelist, home);
   if (globResult.blocked) return globResult;
 
   return { blocked: false };
@@ -115,10 +126,10 @@ function enforceFile(input, entries, home) {
 // ── Hook entry point ────────────────────────────────────────────────────
 
 if (require.main === module) {
-  const { config, entries } = loadBlacklist();
+  const { config, blacklist, whitelist } = loadBlacklist();
 
   parseStdin().then((input) => {
-    const result = enforceFile(input, entries, process.env.HOME);
+    const result = enforceFile(input, blacklist, whitelist, process.env.HOME);
 
     if (result.blocked) {
       logViolation(config.logFile, { tool: result.tool, target: result.target, pattern: result.pattern });
@@ -132,4 +143,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { enforceFile, enforceGlobPattern, extractFilePaths };
+module.exports = { enforceFile, enforceGlobPattern, extractFilePaths, isWhitelistedFile };

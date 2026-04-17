@@ -4,20 +4,21 @@ const { describe, it } = require('node:test');
 const { strictEqual } = require('node:assert');
 const { enforceBash, enforceBashFiles } = require('./patronum-bash-hook');
 
-const ENTRIES = [
+const BLACKLIST = [
   { pattern: '**/.env', reason: 'secrets' },
   { pattern: '**/.env.*', reason: 'env overrides' },
   { pattern: '~/.ssh/*', reason: 'ssh keys' },
   { pattern: 'Bash(printenv)', reason: 'env dump' },
 ];
 
+const NO_WHITELIST = [];
 const HOME = '/home/testuser';
 
 describe('enforceBash', () => {
   it('blocks exact match', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, true);
     strictEqual(r.pattern, 'Bash(printenv)');
@@ -26,7 +27,7 @@ describe('enforceBash', () => {
   it('blocks prefix match with arguments', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv HOME' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, true);
   });
@@ -34,7 +35,7 @@ describe('enforceBash', () => {
   it('allows safe command', () => {
     const r = enforceBash(
       { tool_input: { command: 'ls -la' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
@@ -42,7 +43,7 @@ describe('enforceBash', () => {
   it('allows set with options', () => {
     const r = enforceBash(
       { tool_input: { command: 'set -euo pipefail' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
@@ -50,7 +51,7 @@ describe('enforceBash', () => {
   it('allows env with variable assignment', () => {
     const r = enforceBash(
       { tool_input: { command: 'env NODE_ENV=test npm run build' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
@@ -58,20 +59,20 @@ describe('enforceBash', () => {
   it('no false positive for protected filename in body text', () => {
     const r = enforceBash(
       { tool_input: { command: 'gh issue create --body "see .env.local for details"' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
 
   it('allows when no command', () => {
-    const r = enforceBash({ tool_input: {} }, ENTRIES);
+    const r = enforceBash({ tool_input: {} }, BLACKLIST, NO_WHITELIST);
     strictEqual(r.blocked, false);
   });
 
   it('skips file patterns (command matching only)', () => {
     const r = enforceBash(
       { tool_input: { command: 'cat .env' } },
-      [{ pattern: '**/.env' }],
+      [{ pattern: '**/.env' }], NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
@@ -79,7 +80,7 @@ describe('enforceBash', () => {
   it('allows with empty entries', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv' } },
-      [],
+      [], NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
@@ -87,7 +88,7 @@ describe('enforceBash', () => {
   it('does not match partial command name', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenvs' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, false);
   });
@@ -95,7 +96,7 @@ describe('enforceBash', () => {
   it('blocks command followed by pipe operator', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv|grep SECRET' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, true);
   });
@@ -103,7 +104,7 @@ describe('enforceBash', () => {
   it('blocks command followed by semicolon', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv;cat file' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, true);
   });
@@ -111,7 +112,7 @@ describe('enforceBash', () => {
   it('blocks command followed by &&', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv&&ls' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, true);
   });
@@ -119,27 +120,34 @@ describe('enforceBash', () => {
   it('blocks command followed by redirect', () => {
     const r = enforceBash(
       { tool_input: { command: 'printenv>out.txt' } },
-      ENTRIES,
+      BLACKLIST, NO_WHITELIST,
     );
     strictEqual(r.blocked, true);
   });
 
   it('respects match: exact — blocks bare command', () => {
-    const entries = [{ pattern: 'Bash(env)', reason: 'env dump', match: 'exact' }];
-    const r = enforceBash({ tool_input: { command: 'env' } }, entries);
+    const blacklist = [{ pattern: 'Bash(env)', reason: 'env dump', match: 'exact' }];
+    const r = enforceBash({ tool_input: { command: 'env' } }, blacklist, NO_WHITELIST);
     strictEqual(r.blocked, true);
   });
 
   it('respects match: exact — allows command with arguments', () => {
-    const entries = [{ pattern: 'Bash(env)', reason: 'env dump', match: 'exact' }];
-    const r = enforceBash({ tool_input: { command: 'env NODE_ENV=test npm start' } }, entries);
+    const blacklist = [{ pattern: 'Bash(env)', reason: 'env dump', match: 'exact' }];
+    const r = enforceBash({ tool_input: { command: 'env NODE_ENV=test npm start' } }, blacklist, NO_WHITELIST);
     strictEqual(r.blocked, false);
   });
 
   it('respects match: exact for set', () => {
-    const entries = [{ pattern: 'Bash(set)', reason: 'var dump', match: 'exact' }];
-    strictEqual(enforceBash({ tool_input: { command: 'set' } }, entries).blocked, true);
-    strictEqual(enforceBash({ tool_input: { command: 'set -euo pipefail' } }, entries).blocked, false);
+    const blacklist = [{ pattern: 'Bash(set)', reason: 'var dump', match: 'exact' }];
+    strictEqual(enforceBash({ tool_input: { command: 'set' } }, blacklist, NO_WHITELIST).blocked, true);
+    strictEqual(enforceBash({ tool_input: { command: 'set -euo pipefail' } }, blacklist, NO_WHITELIST).blocked, false);
+  });
+
+  it('whitelist overrides blacklist for Bash command', () => {
+    const blacklist = [{ pattern: 'Bash(printenv)', reason: 'blocked' }];
+    const whitelist = [{ pattern: 'Bash(printenv)', reason: 'explicitly allowed' }];
+    const r = enforceBash({ tool_input: { command: 'printenv' } }, blacklist, whitelist);
+    strictEqual(r.blocked, false);
   });
 });
 
@@ -147,7 +155,7 @@ describe('enforceBashFiles', () => {
   it('blocks cat .env', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'cat .env' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, true);
     strictEqual(r.pattern, '**/.env');
@@ -156,7 +164,7 @@ describe('enforceBashFiles', () => {
   it('blocks cat .env.local', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'cat .env.local' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, true);
   });
@@ -164,7 +172,7 @@ describe('enforceBashFiles', () => {
   it('blocks absolute path to ssh key', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'cat /home/testuser/.ssh/id_rsa' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, true);
     strictEqual(r.pattern, '~/.ssh/*');
@@ -173,7 +181,7 @@ describe('enforceBashFiles', () => {
   it('blocks tilde path in command', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'cat ~/.ssh/id_rsa' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, true);
   });
@@ -181,13 +189,13 @@ describe('enforceBashFiles', () => {
   it('allows safe file in command', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'cat /tmp/safe.txt' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, false);
   });
 
   it('allows when no command', () => {
-    const r = enforceBashFiles({ tool_input: {} }, ENTRIES, HOME);
+    const r = enforceBashFiles({ tool_input: {} }, BLACKLIST, NO_WHITELIST, HOME);
     strictEqual(r.blocked, false);
   });
 
@@ -195,7 +203,7 @@ describe('enforceBashFiles', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'cat .env' } },
       [{ pattern: 'Bash(printenv)' }],
-      HOME,
+      NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, false);
   });
@@ -203,7 +211,7 @@ describe('enforceBashFiles', () => {
   it('does not false-positive on .env in quoted body text', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'gh issue create --body "see .env.local for details"' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, false);
   });
@@ -211,8 +219,18 @@ describe('enforceBashFiles', () => {
   it('blocks grep targeting .env', () => {
     const r = enforceBashFiles(
       { tool_input: { command: 'grep SECRET .env.local' } },
-      ENTRIES, HOME,
+      BLACKLIST, NO_WHITELIST, HOME,
     );
     strictEqual(r.blocked, true);
+  });
+
+  it('whitelist overrides blacklist for file token in command', () => {
+    const blacklist = [{ pattern: '**/.env', reason: 'blocked' }];
+    const whitelist = [{ pattern: '**/.env', reason: 'explicitly allowed' }];
+    const r = enforceBashFiles(
+      { tool_input: { command: 'cat .env' } },
+      blacklist, whitelist, HOME,
+    );
+    strictEqual(r.blocked, false);
   });
 });

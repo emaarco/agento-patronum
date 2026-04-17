@@ -114,8 +114,11 @@ if ((projectScopeDetected || localScopeDetected) && !userScopeInstalled) {
 // Report status
 try {
   const data = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-  const count = (data.entries || []).length;
-  console.log(`agento-patronum: protection active. ${count} patterns loaded.`);
+  // Migration: v1 used `entries` (all blacklist); v2 uses `blacklist`/`whitelist`
+  const blacklist = data.blacklist || data.entries || [];
+  const whitelist = data.whitelist || [];
+  const count = blacklist.length + whitelist.length;
+  console.log(`agento-patronum: protection active. ${count} patterns loaded (${blacklist.length} blocked, ${whitelist.length} allowed).`);
 } catch {
   console.debug('patronum: could not read config for status report');
   console.log('agento-patronum: protection active.');

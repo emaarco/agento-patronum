@@ -100,8 +100,14 @@ if (!fs.existsSync(patronumDir)) {
   checkInstall('~/.claude/patronum/patronum.json exists', 'fail', 'run setup or reinstall the plugin');
 } else {
   try {
-    JSON.parse(fs.readFileSync(configFile, 'utf8'));
+    const data = JSON.parse(fs.readFileSync(configFile, 'utf8'));
     checkInstall('~/.claude/patronum/patronum.json valid JSON', 'pass');
+    if (data.version !== '2') {
+      checkInstall('~/.claude/patronum/patronum.json version', 'fail',
+        `outdated format (v${data.version || '1'}) — re-run setup or reinstall, then re-add custom patterns`);
+    } else {
+      checkInstall('~/.claude/patronum/patronum.json version', 'pass');
+    }
   } catch {
     console.debug('patronum: could not parse config for validation');
     checkInstall('~/.claude/patronum/patronum.json valid JSON', 'fail', 'file is malformed — delete it and re-run setup');

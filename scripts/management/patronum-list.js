@@ -32,12 +32,21 @@ if (require.main === module) {
 
   function printConfig(configPath, label) {
     if (!fs.existsSync(configPath)) return;
-    const entries = loadEntries(configPath);
-    console.log(`${label} (${entries.length} patterns)`);
+    const { blacklist, whitelist } = loadEntries(configPath);
+    const total = blacklist.length + whitelist.length;
+    console.log(`${label} (${total} patterns)`);
     console.log(`Config: ${configPath}`);
-    if (entries.length > 0) {
+    if (blacklist.length > 0) {
       console.log('');
-      for (const line of formatEntries(entries)) {
+      console.log('  Blacklist:');
+      for (const line of formatEntries(blacklist)) {
+        console.log(line);
+      }
+    }
+    if (whitelist.length > 0) {
+      console.log('');
+      console.log('  Whitelist:');
+      for (const line of formatEntries(whitelist)) {
         console.log(line);
       }
     }

@@ -6,7 +6,7 @@ const { enforceFile } = require('./patronum-file-hook');
 
 const HOME = '/home/testuser';
 
-const ENTRIES = [
+const BLACKLIST = [
   { pattern: '**/.env', reason: 'secrets' },
   { pattern: '**/.env.*', reason: 'env overrides' },
   { pattern: '**/*.pem', reason: 'private keys' },
@@ -18,12 +18,14 @@ const ENTRIES = [
   { pattern: 'Bash(printenv)', reason: 'env dump' },
 ];
 
+const NO_WHITELIST = [];
+
 describe('enforceFile', () => {
   describe('Read tool', () => {
     it('blocks .env', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: '/project/.env' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.pattern, '**/.env');
@@ -32,7 +34,7 @@ describe('enforceFile', () => {
     it('blocks .env.local', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: '/project/.env.local' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.pattern, '**/.env.*');
@@ -41,7 +43,7 @@ describe('enforceFile', () => {
     it('blocks ~/.ssh/id_rsa', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: `${HOME}/.ssh/id_rsa` } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.pattern, '~/.ssh/*');
@@ -50,7 +52,7 @@ describe('enforceFile', () => {
     it('blocks ~/.aws/credentials', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: `${HOME}/.aws/credentials` } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -58,7 +60,7 @@ describe('enforceFile', () => {
     it('blocks .pem files', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: '/etc/ssl/server.pem' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.pattern, '**/*.pem');
@@ -67,7 +69,7 @@ describe('enforceFile', () => {
     it('allows safe file', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: '/tmp/safe.txt' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -75,7 +77,17 @@ describe('enforceFile', () => {
     it('allows when no file_path', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: {} },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
+      );
+      strictEqual(r.blocked, false);
+    });
+
+    it('whitelist overrides blacklist', () => {
+      const blacklist = [{ pattern: '**/.env', reason: 'blocked' }];
+      const whitelist = [{ pattern: '**/.env', reason: 'explicitly allowed' }];
+      const r = enforceFile(
+        { tool_name: 'Read', tool_input: { file_path: '/project/.env' } },
+        blacklist, whitelist, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -85,7 +97,7 @@ describe('enforceFile', () => {
     it('blocks .env.local', () => {
       const r = enforceFile(
         { tool_name: 'Write', tool_input: { file_path: '/project/.env.local' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -95,7 +107,7 @@ describe('enforceFile', () => {
     it('blocks .env', () => {
       const r = enforceFile(
         { tool_name: 'Edit', tool_input: { file_path: '/project/.env' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -113,7 +125,7 @@ describe('enforceFile', () => {
             ],
           },
         },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.target, '/project/.env');
@@ -127,7 +139,7 @@ describe('enforceFile', () => {
             edits: [{ file_path: '/tmp/safe.txt', old_string: 'x', new_string: 'y' }],
           },
         },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -137,7 +149,7 @@ describe('enforceFile', () => {
     it('blocks when path targets file inside protected directory', () => {
       const r = enforceFile(
         { tool_name: 'Glob', tool_input: { pattern: '*', path: `${HOME}/.ssh/config` } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.pattern, '~/.ssh/*');
@@ -146,7 +158,7 @@ describe('enforceFile', () => {
     it('blocks when pattern would enumerate .env files', () => {
       const r = enforceFile(
         { tool_name: 'Glob', tool_input: { pattern: '**/.env*' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -154,7 +166,7 @@ describe('enforceFile', () => {
     it('blocks when pattern matches .env exactly', () => {
       const r = enforceFile(
         { tool_name: 'Glob', tool_input: { pattern: '**/.env' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -162,7 +174,7 @@ describe('enforceFile', () => {
     it('blocks when pattern would find .pem files', () => {
       const r = enforceFile(
         { tool_name: 'Glob', tool_input: { pattern: '**/*.pem' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -170,7 +182,7 @@ describe('enforceFile', () => {
     it('allows safe glob pattern', () => {
       const r = enforceFile(
         { tool_name: 'Glob', tool_input: { pattern: '**/*.js', path: '/project' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -178,7 +190,7 @@ describe('enforceFile', () => {
     it('allows when no pattern', () => {
       const r = enforceFile(
         { tool_name: 'Glob', tool_input: {} },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -188,7 +200,7 @@ describe('enforceFile', () => {
     it('blocks when path targets .env', () => {
       const r = enforceFile(
         { tool_name: 'Grep', tool_input: { pattern: 'SECRET', path: '/project/.env' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
       strictEqual(r.pattern, '**/.env');
@@ -197,7 +209,7 @@ describe('enforceFile', () => {
     it('blocks when path targets .pem file', () => {
       const r = enforceFile(
         { tool_name: 'Grep', tool_input: { pattern: 'key', path: '/etc/ssl/server.pem' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, true);
     });
@@ -205,7 +217,7 @@ describe('enforceFile', () => {
     it('allows safe path', () => {
       const r = enforceFile(
         { tool_name: 'Grep', tool_input: { pattern: 'TODO', path: '/project/src' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -213,14 +225,14 @@ describe('enforceFile', () => {
 
   describe('edge cases', () => {
     it('allows when no tool_name', () => {
-      const r = enforceFile({}, ENTRIES, HOME);
+      const r = enforceFile({}, BLACKLIST, NO_WHITELIST, HOME);
       strictEqual(r.blocked, false);
     });
 
     it('allows unknown tool names', () => {
       const r = enforceFile(
         { tool_name: 'FooTool', tool_input: { file_path: '/project/.env' } },
-        ENTRIES, HOME,
+        BLACKLIST, NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -229,7 +241,7 @@ describe('enforceFile', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: '/tmp/safe.txt' } },
         [{ pattern: 'Bash(printenv)' }],
-        HOME,
+        NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });
@@ -237,7 +249,7 @@ describe('enforceFile', () => {
     it('allows with empty entries', () => {
       const r = enforceFile(
         { tool_name: 'Read', tool_input: { file_path: '/project/.env' } },
-        [], HOME,
+        [], NO_WHITELIST, HOME,
       );
       strictEqual(r.blocked, false);
     });

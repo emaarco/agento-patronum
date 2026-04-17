@@ -15,7 +15,7 @@ const { logViolation } = require('../lib/logging');
 
 // ── Enforce logic ───────────────────────────────────────────────────────
 
-function enforcePrompt(input, entries, home, cwd) {
+function enforcePrompt(input, blacklist, whitelist, home, cwd) {
   const prompt = input.prompt || '';
   if (!prompt) return { blocked: false };
 
@@ -34,7 +34,13 @@ function enforcePrompt(input, entries, home, cwd) {
       absPath = path.join(cwd, raw);
     }
 
-    for (const entry of entries) {
+    // Whitelist check: if any whitelist file pattern matches, allow this mention
+    const whitelisted = whitelist.some(
+      e => e.pattern && !e.pattern.startsWith('Bash(') && matchGlob(absPath, e.pattern, home)
+    );
+    if (whitelisted) continue;
+
+    for (const entry of blacklist) {
       if (!entry.pattern || entry.pattern.startsWith('Bash(')) continue;
       if (matchGlob(absPath, entry.pattern, home)) {
         return {
@@ -53,10 +59,10 @@ function enforcePrompt(input, entries, home, cwd) {
 // ── Hook entry point ────────────────────────────────────────────────────
 
 if (require.main === module) {
-  const { config, entries } = loadBlacklist();
+  const { config, blacklist, whitelist } = loadBlacklist();
 
   parseStdin().then((input) => {
-    const result = enforcePrompt(input, entries, process.env.HOME, process.cwd());
+    const result = enforcePrompt(input, blacklist, whitelist, process.env.HOME, process.cwd());
 
     if (result.blocked) {
       logViolation(config.logFile, { tool: result.tool, target: result.target, pattern: result.pattern });

@@ -1,6 +1,6 @@
 # patronum-list
 
-Show all patterns currently protected by agento-patronum.
+Show all patterns currently active in agento-patronum.
 
 ## Usage
 
@@ -12,10 +12,12 @@ Inside Claude Code, run:
 
 ## Output
 
-Displays a table with three columns:
+Displays two labeled sections — blacklist and whitelist — each with a table:
 
 | Column | Description |
 |--------|-------------|
 | **Pattern** | The glob pattern or Bash command |
 | **Source** | `default` (shipped with plugin) or `user` (added manually) |
-| **Reason** | Why this pattern is protected |
+| **Reason** | Why this pattern is blocked or allowed |
+
+Patterns in the whitelist override matching blacklist entries — see [Schema](/reference/schema) for enforcement order.

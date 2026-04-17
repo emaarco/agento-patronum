@@ -10,8 +10,8 @@ const { removePattern } = require('./patronum-remove');
 let tmpDir;
 let configPath;
 
-function writeConfig(entries) {
-  fs.writeFileSync(configPath, JSON.stringify({ entries }, null, 2) + '\n');
+function writeConfig(blacklist, whitelist = []) {
+  fs.writeFileSync(configPath, JSON.stringify({ blacklist, whitelist }, null, 2) + '\n');
 }
 
 function readConfig() {
@@ -28,14 +28,26 @@ afterEach(() => {
 });
 
 describe('removePattern', () => {
-  it('removes an existing pattern', () => {
+  it('removes an existing pattern from blacklist', () => {
     writeConfig([{ pattern: '**/.env' }, { pattern: '**/*.pem' }]);
     const result = removePattern(configPath, '**/.env');
     strictEqual(result.removed, true);
+    strictEqual(result.fromList, 'blacklist');
     strictEqual(result.remaining, 1);
 
     const data = readConfig();
-    strictEqual(data.entries[0].pattern, '**/*.pem');
+    strictEqual(data.blacklist[0].pattern, '**/*.pem');
+  });
+
+  it('removes an existing pattern from whitelist', () => {
+    writeConfig([], [{ pattern: '**/.env.example' }, { pattern: '**/.env.test' }]);
+    const result = removePattern(configPath, '**/.env.example');
+    strictEqual(result.removed, true);
+    strictEqual(result.fromList, 'whitelist');
+    strictEqual(result.remaining, 1);
+
+    const data = readConfig();
+    strictEqual(data.whitelist[0].pattern, '**/.env.test');
   });
 
   it('returns not-found for missing pattern', () => {
@@ -44,9 +56,8 @@ describe('removePattern', () => {
     strictEqual(result.removed, false);
     strictEqual(result.remaining, 1);
 
-    // Config unchanged
     const data = readConfig();
-    strictEqual(data.entries.length, 1);
+    strictEqual(data.blacklist.length, 1);
   });
 
   it('preserves remaining entries', () => {
@@ -54,15 +65,15 @@ describe('removePattern', () => {
     removePattern(configPath, 'b');
 
     const data = readConfig();
-    strictEqual(data.entries.length, 2);
-    strictEqual(data.entries[0].pattern, 'a');
-    strictEqual(data.entries[1].pattern, 'c');
+    strictEqual(data.blacklist.length, 2);
+    strictEqual(data.blacklist[0].pattern, 'a');
+    strictEqual(data.blacklist[1].pattern, 'c');
   });
 
   it('writes valid JSON after removal', () => {
     writeConfig([{ pattern: '**/.env' }]);
     removePattern(configPath, '**/.env');
-    // Should not throw
     JSON.parse(fs.readFileSync(configPath, 'utf8'));
   });
+
 });

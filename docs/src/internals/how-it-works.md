@@ -26,9 +26,10 @@ The diagram below shows the core interception pipeline — from Claude Code issu
 
 1. **Claude Code issues a tool call** (e.g. `Read ~/.ssh/id_rsa` or `Bash printenv`)
 2. **The matching PreToolUse hook** intercepts the call before it executes
-3. **Pattern matching** checks the target against all entries in `~/.claude/patronum/patronum.json`
-4. If a pattern matches: the call is **blocked** (exit code 2) and logged to `~/.claude/patronum/patronum.log`
-5. If no pattern matches: the call is **allowed** (exit code 0) and proceeds normally
+3. **Pattern matching** checks the target against the whitelist, then the blacklist in `~/.claude/patronum/patronum.json`
+4. If a **whitelist** pattern matches: the call is **allowed** immediately (exit code 0)
+5. If a **blacklist** pattern matches: the call is **blocked** (exit code 2) and logged to `~/.claude/patronum/patronum.log`
+6. If no pattern matches: the call is **allowed** (exit code 0) and proceeds normally
 
 ## What the file hook receives
 
@@ -99,7 +100,7 @@ It extracts every `@<path>` token, resolves each to an absolute path, and checks
 
 Hooks fire for the primary Claude Code agent process. Subagents, however, are independent processes that only inherit user-scope settings (`~/.claude/settings.json`). If patronum is installed only at project or local scope, subagent tool calls bypass all hooks entirely.
 
-Installing at user scope ensures hooks fire for subagents too. Config resolution still merges all three levels (user, project, local) — so project and local blacklists remain active even when the plugin activation comes from user scope. See [Security Considerations](/internals/security-considerations) for the full picture.
+Installing at user scope ensures hooks fire for subagents too. Config resolution still merges all three levels (user, project, local) — so project and local blacklists and whitelists remain active even when the plugin activation comes from user scope. See [Security Considerations](/internals/security-considerations) for the full picture.
 
 ## Dependencies
 

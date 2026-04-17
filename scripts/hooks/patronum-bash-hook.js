@@ -14,11 +14,24 @@ const { logViolation } = require('../lib/logging');
 
 // ── Enforce logic ───────────────────────────────────────────────────────
 
-function enforceBash(input, entries) {
+function isBashWhitelisted(command, whitelist) {
+  for (const entry of whitelist) {
+    if (!entry.pattern || !entry.pattern.startsWith('Bash(') || !entry.pattern.endsWith(')')) continue;
+    const allowedCmd = entry.pattern.slice(5, -1);
+    const follows = command.slice(allowedCmd.length);
+    const endsAtBoundary = follows === '' || /^[\s|;&><]/.test(follows);
+    if (command.startsWith(allowedCmd) && endsAtBoundary) return true;
+  }
+  return false;
+}
+
+function enforceBash(input, blacklist, whitelist) {
   const command = (input.tool_input && input.tool_input.command) || '';
   if (!command) return { blocked: false };
 
-  for (const entry of entries) {
+  if (isBashWhitelisted(command, whitelist)) return { blocked: false };
+
+  for (const entry of blacklist) {
     if (!entry.pattern) continue;
     if (!entry.pattern.startsWith('Bash(') || !entry.pattern.endsWith(')')) continue;
 
@@ -51,12 +64,12 @@ const FILE_TOKEN_RE = /(?:\/|~\/|\.\/)[^\s;|&><"'`$()]+|(?:^|\s)(\.env[^\s;|&><"
 // "cat .env" or "cat ~/.ssh/id_rsa" would bypass file-only pattern matching.
 // Extracts file-path-like tokens and checks them against file glob patterns.
 // See: https://cwe.mitre.org/data/definitions/78.html (OS Command Injection)
-function enforceBashFiles(input, entries, home) {
+function enforceBashFiles(input, blacklist, whitelist, home) {
   const command = (input.tool_input && input.tool_input.command) || '';
   if (!command) return { blocked: false };
 
-  const fileEntries = entries.filter(e => e.pattern && !e.pattern.startsWith('Bash('));
-  if (fileEntries.length === 0) return { blocked: false };
+  const fileBlacklist = blacklist.filter(e => e.pattern && !e.pattern.startsWith('Bash('));
+  if (fileBlacklist.length === 0) return { blocked: false };
 
   const stripped = stripQuoted(command);
   const tokens = [];
@@ -67,7 +80,13 @@ function enforceBashFiles(input, entries, home) {
   }
 
   for (const token of tokens) {
-    for (const entry of fileEntries) {
+    // Whitelist check: if any whitelist file pattern matches this token, allow it
+    const whitelisted = whitelist.some(
+      e => e.pattern && !e.pattern.startsWith('Bash(') && matchGlob(token, e.pattern, home)
+    );
+    if (whitelisted) continue;
+
+    for (const entry of fileBlacklist) {
       if (matchGlob(token, entry.pattern, home)) {
         return {
           blocked: true,
@@ -85,11 +104,11 @@ function enforceBashFiles(input, entries, home) {
 // ── Hook entry point ────────────────────────────────────────────────────
 
 if (require.main === module) {
-  const { config, entries } = loadBlacklist();
+  const { config, blacklist, whitelist } = loadBlacklist();
 
   parseStdin().then((input) => {
-    const cmdResult = enforceBash(input, entries);
-    const result = cmdResult.blocked ? cmdResult : enforceBashFiles(input, entries, process.env.HOME);
+    const cmdResult = enforceBash(input, blacklist, whitelist);
+    const result = cmdResult.blocked ? cmdResult : enforceBashFiles(input, blacklist, whitelist, process.env.HOME);
 
     if (result.blocked) {
       logViolation(config.logFile, { tool: result.tool, target: result.target, pattern: result.pattern });
@@ -103,4 +122,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { enforceBash, enforceBashFiles };
+module.exports = { enforceBash, enforceBashFiles, isBashWhitelisted };

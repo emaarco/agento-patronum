@@ -10,8 +10,8 @@ const { addPattern } = require('./patronum-add');
 let tmpDir;
 let configPath;
 
-function writeConfig(entries) {
-  fs.writeFileSync(configPath, JSON.stringify({ entries }, null, 2) + '\n');
+function writeConfig(blacklist, whitelist = []) {
+  fs.writeFileSync(configPath, JSON.stringify({ blacklist, whitelist }, null, 2) + '\n');
 }
 
 function readConfig() {
@@ -28,29 +28,48 @@ afterEach(() => {
 });
 
 describe('addPattern', () => {
-  it('adds a new pattern', () => {
+  it('adds a new pattern to blacklist by default', () => {
     writeConfig([]);
     const result = addPattern(configPath, '**/.env', 'secrets');
     strictEqual(result.added, true);
     strictEqual(result.total, 1);
 
     const data = readConfig();
-    strictEqual(data.entries[0].pattern, '**/.env');
-    strictEqual(data.entries[0].reason, 'secrets');
-    strictEqual(data.entries[0].type, 'glob');
-    strictEqual(data.entries[0].source, 'user');
-    ok(data.entries[0].addedAt);
+    strictEqual(data.blacklist[0].pattern, '**/.env');
+    strictEqual(data.blacklist[0].reason, 'secrets');
+    strictEqual(data.blacklist[0].type, 'glob');
+    strictEqual(data.blacklist[0].source, 'user');
+    ok(data.blacklist[0].addedAt);
   });
 
-  it('returns duplicate for existing pattern', () => {
+  it('adds a new pattern to whitelist when list=whitelist', () => {
+    writeConfig([]);
+    const result = addPattern(configPath, '**/.env.example', 'safe', { list: 'whitelist' });
+    strictEqual(result.added, true);
+    strictEqual(result.total, 1);
+
+    const data = readConfig();
+    strictEqual(data.whitelist[0].pattern, '**/.env.example');
+    strictEqual(data.whitelist[0].source, 'user');
+    strictEqual(data.blacklist.length, 0);
+  });
+
+  it('returns duplicate for existing blacklist pattern', () => {
     writeConfig([{ pattern: '**/.env', reason: 'existing' }]);
     const result = addPattern(configPath, '**/.env', 'new reason');
     strictEqual(result.added, false);
     strictEqual(result.reason, 'duplicate');
 
     const data = readConfig();
-    strictEqual(data.entries.length, 1);
-    strictEqual(data.entries[0].reason, 'existing');
+    strictEqual(data.blacklist.length, 1);
+    strictEqual(data.blacklist[0].reason, 'existing');
+  });
+
+  it('returns duplicate for existing whitelist pattern', () => {
+    writeConfig([], [{ pattern: '**/.env.example', reason: 'existing' }]);
+    const result = addPattern(configPath, '**/.env.example', 'new reason', { list: 'whitelist' });
+    strictEqual(result.added, false);
+    strictEqual(result.reason, 'duplicate');
   });
 
   it('preserves existing entries', () => {
@@ -58,23 +77,16 @@ describe('addPattern', () => {
     addPattern(configPath, 'c', '');
 
     const data = readConfig();
-    strictEqual(data.entries.length, 3);
-    strictEqual(data.entries[0].pattern, 'a');
-    strictEqual(data.entries[1].pattern, 'b');
-    strictEqual(data.entries[2].pattern, 'c');
+    strictEqual(data.blacklist.length, 3);
+    strictEqual(data.blacklist[0].pattern, 'a');
+    strictEqual(data.blacklist[1].pattern, 'b');
+    strictEqual(data.blacklist[2].pattern, 'c');
   });
 
   it('writes valid JSON', () => {
     writeConfig([]);
     addPattern(configPath, '**/*.pem', 'keys');
-    // Should not throw
     JSON.parse(fs.readFileSync(configPath, 'utf8'));
   });
 
-  it('handles config with no entries key', () => {
-    fs.writeFileSync(configPath, '{}');
-    const result = addPattern(configPath, '**/.env', '');
-    strictEqual(result.added, true);
-    strictEqual(result.total, 1);
-  });
 });

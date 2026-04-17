@@ -1,5 +1,5 @@
 {
-  "entries": [
+  "blacklist": [
     {
       "pattern": "**/.env",
       "type": "glob",
@@ -143,5 +143,6 @@
       "source": "default"
     }
   ],
-  "version": "1"
+  "whitelist": [],
+  "version": "2"
 }

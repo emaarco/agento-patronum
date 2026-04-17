@@ -22,9 +22,10 @@ for (const filePath of JSON_FILES) {
     console.log(`${filePath}: valid`);
 
     if (filePath === 'defaults/patronum.json') {
-      const count = (data.entries || []).length;
-      if (count === 0) throw new Error('no default patterns found');
-      console.log(`  default patterns: ${count}`);
+      const blacklist = data.blacklist || data.entries || [];
+      const whitelist = data.whitelist || [];
+      if (blacklist.length === 0) throw new Error('no default patterns found');
+      console.log(`  default blacklist: ${blacklist.length}, whitelist: ${whitelist.length}`);
     }
   } catch (err) {
     console.error(`${filePath}: INVALID — ${err.message}`);

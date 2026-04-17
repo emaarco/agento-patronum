@@ -160,10 +160,21 @@ describe('getActiveConfigs', () => {
 });
 
 describe('validateActiveConfigs', () => {
-  it('passes for valid configs', () => {
+  it('passes for valid v2 configs', () => {
     const f = path.join(tmpDir, 'valid.json');
-    fs.writeFileSync(f, '{"entries":[]}');
+    fs.writeFileSync(f, '{"blacklist":[],"whitelist":[],"version":"2"}');
     validateActiveConfigs([f]); // should not throw
+  });
+
+  it('exits 2 for outdated v1 config', () => {
+    const f = path.join(tmpDir, 'v1.json');
+    fs.writeFileSync(f, '{"entries":[],"version":"1"}');
+    const origExit = process.exit;
+    let exitCode;
+    process.exit = (code) => { exitCode = code; throw new Error('exit'); };
+    try { validateActiveConfigs([f]); } catch { /* expected */ }
+    process.exit = origExit;
+    strictEqual(exitCode, 2);
   });
 
   it('exits 2 for invalid config', () => {

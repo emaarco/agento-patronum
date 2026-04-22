@@ -8,10 +8,10 @@ Run these inside Claude Code:
 
 ```bash
 # Step 1 — add marketplace (once per machine)
-/plugin marketplace add emaarco/agento-patronum
+/plugin marketplace add agento-patronum/agento-patronum
 
 # Step 2 — install plugin
-/plugin install agento-patronum@emaarco
+/plugin install agento-patronum@agento-patronum
 ```
 
 That's it. Hook active. Credentials shielded.

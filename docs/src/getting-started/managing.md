@@ -19,7 +19,7 @@ This runs a self-test that blocks a protected file and allows a safe one — gre
 To pull the latest version, run inside Claude Code:
 
 ```bash
-claude plugin update agento-patronum@emaarco
+claude plugin update agento-patronum@agento-patronum
 ```
 
 Or via the UI: open `/plugin` → **Installed** tab → find agento-patronum → click **Update**.
@@ -32,10 +32,10 @@ To temporarily pause agento-patronum without losing your config:
 
 ```bash
 # Suspend
-claude plugin disable agento-patronum@emaarco
+claude plugin disable agento-patronum@agento-patronum
 
 # Resume
-claude plugin enable agento-patronum@emaarco
+claude plugin enable agento-patronum@agento-patronum
 ```
 
 After re-enabling, run `/reload-plugins` to activate the hook without a full restart.
@@ -52,10 +52,10 @@ If you installed at multiple scopes and want to remove from just one:
 
 ```bash
 # Remove from project scope only
-claude plugin uninstall agento-patronum@emaarco --scope project
+claude plugin uninstall agento-patronum@agento-patronum --scope project
 
 # Remove from local scope only
-claude plugin uninstall agento-patronum@emaarco --scope local
+claude plugin uninstall agento-patronum@agento-patronum --scope local
 ```
 
 ### Full plugin removal
@@ -63,7 +63,7 @@ claude plugin uninstall agento-patronum@emaarco --scope local
 To remove from all scopes:
 
 ```bash
-/plugin uninstall agento-patronum@emaarco
+/plugin uninstall agento-patronum@agento-patronum
 ```
 
 Your config files (`~/.claude/patronum/`, `.claude/patronum/`) are preserved — custom patterns won't be lost if you reinstall later.
@@ -74,7 +74,7 @@ To remove all agento-patronum data (config files and audit logs), run these two 
 
 **Step 1 — Uninstall the plugin:**
 ```bash
-claude plugin uninstall agento-patronum@emaarco
+claude plugin uninstall agento-patronum@agento-patronum
 ```
 
 **Step 2 — Remove config and log files:**

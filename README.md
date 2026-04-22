@@ -23,10 +23,10 @@ Built-in `settings.json` deny rules may or may not be reliable; [past reports su
 
 ```bash
 # Add marketplace (once per machine)
-/plugin marketplace add emaarco/agento-patronum
+/plugin marketplace add agento-patronum/agento-patronum
 
 # Install plugin (user scope — protects all projects)
-/plugin install agento-patronum@emaarco
+/plugin install agento-patronum@agento-patronum
 ```
 
 Restart Claude Code once. Done. Run `/patronum-verify` to confirm.

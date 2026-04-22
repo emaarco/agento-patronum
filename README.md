@@ -23,7 +23,7 @@ Built-in `settings.json` deny rules may or may not be reliable; [past reports su
 
 ```bash
 # Add marketplace (once per machine)
-/plugin marketplace add agento-patronum/patronum
+/plugin marketplace add emaarco/agento-patronum
 
 # Install plugin (user scope — protects all projects)
 /plugin install patronum@agento-patronum

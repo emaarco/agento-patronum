@@ -13,7 +13,7 @@ To protect subagents, install patronum at **user scope**. This is the single mos
 
 ```bash
 # Inside Claude Code — installs at user scope (the default)
-/plugin marketplace add agento-patronum/patronum
+/plugin marketplace add emaarco/agento-patronum
 /plugin install patronum@agento-patronum
 ```
 

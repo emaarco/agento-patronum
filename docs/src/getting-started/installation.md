@@ -8,7 +8,7 @@ Run these inside Claude Code:
 
 ```bash
 # Step 1 — add marketplace (once per machine)
-/plugin marketplace add agento-patronum/patronum
+/plugin marketplace add emaarco/agento-patronum
 
 # Step 2 — install plugin
 /plugin install patronum@agento-patronum

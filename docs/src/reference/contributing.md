@@ -29,7 +29,7 @@ Before pushing changes to `.claude-plugin/`, verify the full marketplace install
 /plugin marketplace add /path/to/agento-patronum
 
 # 3. Install the plugin from it
-/plugin install agento-patronum@agento-patronum
+/plugin install patronum@agento-patronum
 
 # 4. Verify protection is active, then clean up
 /patronum-verify

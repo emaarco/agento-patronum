@@ -8,8 +8,8 @@ agento-patronum is a Claude Code plugin that protects sensitive files, credentia
 
 Install via Claude Code marketplace:
 ```bash
-/plugin marketplace add agento-patronum/agento-patronum
-/plugin install agento-patronum@agento-patronum
+/plugin marketplace add agento-patronum/patronum
+/plugin install patronum@agento-patronum
 ```
 
 ## Architecture

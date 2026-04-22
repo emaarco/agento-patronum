@@ -124,7 +124,7 @@ agento-patronum intercepts every tool call **before execution**. If the target m
 </div>
 <div class="cta-step">
 <span class="cta-step-label">2</span>
-<code class="cta-command">/plugin install agento-patronum@emaarco</code>
+<code class="cta-command">/plugin install patronum@agento-patronum</code>
 </div>
 </div>
 

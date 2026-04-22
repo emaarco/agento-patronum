@@ -11,7 +11,7 @@ Run these inside Claude Code:
 /plugin marketplace add emaarco/agento-patronum
 
 # Step 2 — install plugin
-/plugin install agento-patronum@emaarco
+/plugin install patronum@agento-patronum
 ```
 
 That's it. Hook active. Credentials shielded.
